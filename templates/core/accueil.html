@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load humanize static %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: url('{% static 'img/cadastre1.jpg' %}');">
+  <div class="conteneur">
+    <span class="hero-eyebrow">📍 Région de Thiès · Sénégal</span>
+    <h1>Le Cadastre au cœur de la Fiscalité foncière</h1>
+    <p class="lead">
+      Une plateforme unique pour consulter les parcelles, suivre les avis de taxe foncière
+      et piloter la fiscalité locale — au service des contribuables et des services du cadastre.
+    </p>
+    <div class="hero-actions">
+      <a href="{% url 'core:consultation_publique' %}" class="btn btn-primaire">Consulter une parcelle</a>
+      <a href="{% url 'appcadastre:connexion' %}" class="btn btn-secondaire">Espace agent</a>
+    </div>
+
+    <div class="chiffres">
+      <div class="chiffre-carte">
+        <div class="chiffre-icone">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+        </div>
+        <div class="chiffre-texte">
+          <span class="chiffre-valeur">{{ chiffres.nb_parcelles }}</span>
+          <span class="chiffre-label">Parcelles enregistrées</span>
+        </div>
+      </div>
+      <div class="chiffre-carte">
+        <div class="chiffre-icone">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-8h6v8"/></svg>
+        </div>
+        <div class="chiffre-texte">
+          <span class="chiffre-valeur">{{ chiffres.nb_communes }}</span>
+          <span class="chiffre-label">Communes couvertes</span>
+        </div>
+      </div>
+      <div class="chiffre-carte">
+        <div class="chiffre-icone">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="chiffre-texte">
+          <span class="chiffre-valeur">{{ chiffres.superficie_totale|floatformat:0|intcomma }} m²</span>
+          <span class="chiffre-label">Superficie cadastrée</span>
+        </div>
+      </div>
+      <div class="chiffre-carte">
+        <div class="chiffre-icone">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5M12 16.5v.01"/></svg>
+        </div>
+        <div class="chiffre-texte">
+          <span class="chiffre-valeur">{{ chiffres.recouvrement_total|floatformat:0|intcomma }} FCFA</span>
+          <span class="chiffre-label">Taxe foncière émise</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>Ce que propose la plateforme</h2>
+    </div>
+    <div class="grille-3">
+
+      <div class="service-carte">
+        <div class="service-icone">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+        <h3>Consultation publique</h3>
+        <p>Recherchez une parcelle par sa référence cadastrale et connaissez instantanément son statut d'immatriculation.</p>
+        <a href="{% url 'core:consultation_publique' %}" class="service-lien">Consulter une parcelle →</a>
+      </div>
+
+      <div class="service-carte">
+        <div class="service-icone">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </div>
+        <h3>Comprendre le cadastre</h3>
+        <p>Découvrez ce qu'est l'immatriculation d'une parcelle, comment la valeur vénale est estimée et comment elle détermine la taxe foncière.</p>
+        <a href="{% url 'core:guide_cadastre' %}" class="service-lien">En savoir plus →</a>
+      </div>
+
+      <div class="service-carte">
+        <div class="service-icone">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3>Fiscalité foncière expliquée</h3>
+        <p>Comprenez comment la valeur vénale d'une parcelle est estimée et comment elle sert de base au calcul de votre taxe foncière annuelle.</p>
+        <a href="{% url 'core:guide_cadastre' %}#taxe-fonciere" class="service-lien">En savoir plus →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>À propos de la plateforme</h2>
+    </div>
+
+    <div class="a-propos-intro">
+      <p style="font-size:1.05rem; color:#4b5262;">
+        Née de la volonté de moderniser la gestion du foncier à Thiès, cette plateforme relie en un seul
+        endroit le cadastre — l'inventaire officiel des parcelles d'un territoire — et la fiscalité
+        foncière qui en découle : chaque parcelle immatriculée se voit attribuer une valeur vénale, base
+        du calcul de sa taxe foncière annuelle. Fini les registres papier dispersés et les recherches
+        fastidieuses : les données sont centralisées, fiables et accessibles en quelques clics, aussi bien
+        pour le grand public que pour les services chargés d'administrer les parcelles et de recouvrer l'impôt.
+      </p>
+      <div class="a-propos-image">
+        <img src="{% static 'img/cadastre2.webp' %}" alt="Consultation d'un plan cadastral avec une maquette de maison">
+      </div>
+    </div>
+
+    <div class="a-propos-points">
+      <div class="a-propos-point">
+        <h3>📍 Une base de données unifiée</h3>
+        <p>Toutes les parcelles, propriétaires et communes sont réunis dans un même référentiel, mis à jour en continu et facile à interroger.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>🌐 Un accès simplifié</h3>
+        <p>Le statut d'immatriculation d'une parcelle s'obtient en quelques secondes, sans déplacement ni démarche administrative complexe.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>📊 Un suivi transparent</h3>
+        <p>Avis de taxe, paiements et taux de recouvrement sont consultables en temps réel, commune par commune et année par année.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>Dernières actualités</h2>
+      <a href="{% url 'core:liste_actualites' %}" class="voir-tout">Voir tout →</a>
+    </div>
+    <div class="grille-3">
+      {% for a in actualites %}
+        <a href="{% url 'core:detail_actualite' a.pk %}" class="actu-carte">
+          <span class="date">{{ a.date_publication|date:"d M Y" }}</span>
+          <h3>{{ a.titre }}</h3>
+          <p>{{ a.chapo }}</p>
+          <span class="actu-fleche">Lire la suite →</span>
+        </a>
+      {% empty %}
+        <p>Aucune actualité publiée pour le moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

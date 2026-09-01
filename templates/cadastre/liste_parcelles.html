@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Parcelles — Back-office{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Parcelles</h1>
+      <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Tableau de bord</a>
+    </div>
+
+    <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
+      <div class="champ">
+        <label for="q">Référence</label>
+        <input type="text" id="q" name="q" value="{{ filtres.q }}" placeholder="TH-2024-...">
+      </div>
+      <div class="champ">
+        <label for="commune">Commune</label>
+        <select id="commune" name="commune">
+          <option value="">Toutes</option>
+          {% for c in communes %}
+            <option value="{{ c.id }}" {% if filtres.commune == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="champ">
+        <label for="statut">Statut</label>
+        <select id="statut" name="statut">
+          <option value="">Tous</option>
+          {% for valeur, libelle in statut_choices %}
+            <option value="{{ valeur }}" {% if filtres.statut == valeur %}selected{% endif %}>{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primaire">Filtrer</button>
+    </form>
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr>
+            <th>Référence</th><th>Commune</th><th>Propriétaire</th>
+            <th>Usage</th><th>Superficie</th><th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in page_obj %}
+          <tr>
+            <td class="ref"><a href="{% url 'cadastre:parcelle_detail' p.pk %}">{{ p.reference }}</a></td>
+            <td>{{ p.commune }}</td>
+            <td>{{ p.proprietaire }}</td>
+            <td>{{ p.get_usage_display }}</td>
+            <td>{{ p.superficie_m2|intcomma }} m²</td>
+            <td>
+              {% if p.statut == "IMMATRICULEE" %}<span class="badge badge-vert">Immatriculée</span>
+              {% elif p.statut == "EN_COURS" %}<span class="badge badge-ocre">En cours</span>
+              {% elif p.statut == "LITIGE" %}<span class="badge badge-rouge">Litige</span>
+              {% else %}<span class="badge badge-gris">Non immatr.</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">
+            <div class="etat-vide">
+              <div class="etat-vide-icone">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              </div>
+              <p>Aucune parcelle ne correspond à ces critères.</p>
+            </div>
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">← Précédent</a>
+      {% endif %}
+      <span class="actif">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Suivant →</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

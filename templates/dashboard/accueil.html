@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Tableau de bord — Cadastre &amp; Fiscalité Thiès{% endblock %}
+{% block extra_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Tableau de bord</h1>
+      <div>
+        <a href="{% url 'cadastre:liste_parcelles' %}" class="voir-tout">Parcelles →</a>
+        &nbsp;·&nbsp;
+        <a href="{% url 'fiscalite:liste_taxes' %}" class="voir-tout">Taxes →</a>
+      </div>
+    </div>
+
+    <div class="dash-grille">
+      <div class="dash-carte">
+        <div class="valeur">{{ chiffres.nb_parcelles }}</div>
+        <div class="label">Parcelles enregistrées</div>
+      </div>
+      <div class="dash-carte">
+        <div class="valeur">{{ chiffres.nb_proprietaires }}</div>
+        <div class="label">Propriétaires distincts</div>
+      </div>
+      <div class="dash-carte">
+        <div class="valeur">{{ chiffres.nb_communes }}</div>
+        <div class="label">Communes couvertes</div>
+      </div>
+      <div class="dash-carte">
+        <div class="valeur">{{ chiffres.montant_total_du|floatformat:0|intcomma }}</div>
+        <div class="label">FCFA de taxe émise (cumulé)</div>
+      </div>
+    </div>
+
+    <div class="grille-2">
+      <div class="graph-conteneur">
+        <h3>Répartition des parcelles par statut</h3>
+        <canvas id="graphStatut" height="220"></canvas>
+      </div>
+      <div class="graph-conteneur">
+        <h3>Répartition par usage</h3>
+        <canvas id="graphUsage" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="graph-conteneur">
+      <h3>Recouvrement fiscal : dû vs. payé, par année</h3>
+      <canvas id="graphAnnee" height="110"></canvas>
+    </div>
+
+    <h2>Top communes par nombre de parcelles</h2>
+    <div class="table-conteneur">
+      <table>
+        <thead><tr><th>Commune</th><th>Nb. parcelles</th><th>Superficie cumulée</th></tr></thead>
+        <tbody>
+          {% for c in par_commune %}
+          <tr>
+            <td>{{ c.commune__nom }}</td>
+            <td>{{ c.nb_parcelles }}</td>
+            <td>{{ c.superficie|floatformat:0|intcomma }} m²</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+const palette = ['#1B2A4A', '#C98A2C', '#3A6B4C', '#2B4270', '#E4A94F', '#B3452C'];
+
+const donneesStatut = {{ json_statut|safe }};
+new Chart(document.getElementById('graphStatut'), {
+  type: 'doughnut',
+  data: {
+    labels: donneesStatut.map(d => d.statut),
+    datasets: [{ data: donneesStatut.map(d => d.total), backgroundColor: palette }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } } }
+});
+
+const donneesUsage = {{ json_usage|safe }};
+new Chart(document.getElementById('graphUsage'), {
+  type: 'bar',
+  data: {
+    labels: donneesUsage.map(d => d.usage),
+    datasets: [{ label: 'Parcelles', data: donneesUsage.map(d => d.total), backgroundColor: '#1B2A4A' }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+
+const donneesAnnee = {{ json_annee|safe }};
+new Chart(document.getElementById('graphAnnee'), {
+  type: 'bar',
+  data: {
+    labels: donneesAnnee.map(d => d.annee),
+    datasets: [
+      { label: 'Montant dû (FCFA)', data: donneesAnnee.map(d => d.total_du), backgroundColor: '#C98A2C' },
+      { label: 'Montant payé (FCFA)', data: donneesAnnee.map(d => d.total_paye), backgroundColor: '#3A6B4C' }
+    ]
+  },
+  options: { scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

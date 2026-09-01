@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block titre %}Géoportail — Cadastre de Thiès{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+{% endblock %}
+
+{% block contenu %}
+<section class="section geoportail-page">
+  <div class="conteneur">
+
+    <div class="geoportail-entete">
+      <div>
+        <h1>Géoportail</h1>
+        <p>Carte interactive de l'ensemble des parcelles cadastrées de la région de Thiès.</p>
+      </div>
+      <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Tableau de bord</a>
+    </div>
+
+    <div class="geoportail-mise-en-page">
+
+      <aside class="geoportail-panneau">
+        <h2>Filtres</h2>
+        <form id="form-filtres">
+          <div class="champ">
+            <label for="q">Référence</label>
+            <input type="text" id="q" name="q" placeholder="TH-2024-...">
+          </div>
+          <div class="champ">
+            <label for="commune">Commune</label>
+            <select id="commune" name="commune">
+              <option value="">Toutes</option>
+              {% for c in communes %}
+                <option value="{{ c.id }}">{{ c.nom }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="champ">
+            <label for="statut">Statut</label>
+            <select id="statut" name="statut">
+              <option value="">Tous</option>
+              {% for valeur, libelle in statut_choices %}
+                <option value="{{ valeur }}">{{ libelle }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="champ">
+            <label for="usage">Usage</label>
+            <select id="usage" name="usage">
+              <option value="">Tous</option>
+              {% for valeur, libelle in usage_choices %}
+                <option value="{{ valeur }}">{{ libelle }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primaire">Appliquer les filtres</button>
+        </form>
+
+        <div class="geoportail-compteur" id="compteur-resultats">Chargement…</div>
+
+        <h2>Légende</h2>
+        <ul class="geoportail-legende">
+          <li><span class="pastille pastille-vert"></span> Immatriculée</li>
+          <li><span class="pastille pastille-ocre"></span> En cours d'immatriculation</li>
+          <li><span class="pastille pastille-rouge"></span> En litige</li>
+          <li><span class="pastille pastille-gris"></span> Non immatriculée</li>
+        </ul>
+      </aside>
+
+      <div class="geoportail-carte-conteneur">
+        <div id="carte-geoportail" role="application" aria-label="Carte interactive des parcelles cadastrées"></div>
+        <div class="geoportail-chargement" id="geoportail-chargement">Chargement des parcelles…</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const COULEURS_STATUT = {
+    "IMMATRICULEE": "#3A6B4C",
+    "EN_COURS": "#C98A2C",
+    "LITIGE": "#B3452C",
+    "NON_IMMATRICULEE": "#9AA0A8",
+  };
+
+  const urlDonnees = "{% url 'cadastre:geoportail_donnees' %}";
+  const conteneurChargement = document.getElementById("geoportail-chargement");
+  const compteur = document.getElementById("compteur-resultats");
+
+  // Centre approximatif de la région de Thiès.
+  const carte = L.map("carte-geoportail", { scrollWheelZoom: true }).setView([14.79, -16.93], 10);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributeurs',
+  }).addTo(carte);
+
+  const groupeClusters = L.markerClusterGroup({
+    maxClusterRadius: 50,
+    spiderfyOnMaxZoom: true,
+  });
+  carte.addLayer(groupeClusters);
+
+  function creerMarqueur(feature, latlng) {
+    const p = feature.properties;
+    const couleur = COULEURS_STATUT[p.statut] || "#9AA0A8";
+    const marqueur = L.circleMarker(latlng, {
+      radius: 7,
+      weight: 2,
+      color: "#ffffff",
+      fillColor: couleur,
+      fillOpacity: 0.9,
+    });
+
+    const contenuPopup = `
+      <div class="popup-parcelle">
+        <h4>${p.reference}</h4>
+        <dl>
+          <dt>Commune</dt><dd>${p.commune}</dd>
+          <dt>Propriétaire</dt><dd>${p.proprietaire}</dd>
+          <dt>Usage</dt><dd>${p.usage_libelle}</dd>
+          <dt>Superficie</dt><dd>${Math.round(p.superficie_m2).toLocaleString("fr-FR")} m²</dd>
+          <dt>Statut</dt><dd>${p.statut_libelle}</dd>
+        </dl>
+        <a class="popup-lien" href="${p.url}">Voir la fiche →</a>
+      </div>
+    `;
+    marqueur.bindPopup(contenuPopup);
+    return marqueur;
+  }
+
+  function chargerParcelles() {
+    conteneurChargement.classList.remove("masque");
+    compteur.textContent = "Chargement…";
+
+    const params = new URLSearchParams(new FormData(document.getElementById("form-filtres")));
+
+    fetch(urlDonnees + "?" + params.toString())
+      .then((reponse) => reponse.json())
+      .then((geojson) => {
+        groupeClusters.clearLayers();
+        const coucheGeoJSON = L.geoJSON(geojson, { pointToLayer: creerMarqueur });
+        groupeClusters.addLayer(coucheGeoJSON);
+
+        const nb = geojson.features.length;
+        compteur.textContent = nb > 1 ? nb + " parcelles affichées" : nb + " parcelle affichée";
+
+        if (nb > 0) {
+          carte.fitBounds(coucheGeoJSON.getBounds(), { padding: [30, 30], maxZoom: 15 });
+        }
+        conteneurChargement.classList.add("masque");
+      })
+      .catch(() => {
+        compteur.textContent = "Erreur de chargement des données.";
+        conteneurChargement.classList.add("masque");
+      });
+  }
+
+  document.getElementById("form-filtres").addEventListener("submit", function (evenement) {
+    evenement.preventDefault();
+    chargerParcelles();
+  });
+
+  chargerParcelles();
+})();
+</script>
+{% endblock %}

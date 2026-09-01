@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Taxes foncières — Back-office{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Taxes foncières</h1>
+      <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Tableau de bord</a>
+    </div>
+
+    <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
+      <div class="champ">
+        <label for="annee">Année</label>
+        <select id="annee" name="annee">
+          <option value="">Toutes</option>
+          {% for a in annees %}
+            <option value="{{ a }}" {% if filtres.annee == a|stringformat:"s" %}selected{% endif %}>{{ a }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="champ">
+        <label for="statut">Statut</label>
+        <select id="statut" name="statut">
+          <option value="">Tous</option>
+          {% for valeur, libelle in statut_choices %}
+            <option value="{{ valeur }}" {% if filtres.statut == valeur %}selected{% endif %}>{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primaire">Filtrer</button>
+    </form>
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr><th>Parcelle</th><th>Année</th><th>Montant dû</th><th>Payé</th><th>Solde</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+          {% for t in page_obj %}
+          <tr>
+            <td class="ref"><a href="{% url 'fiscalite:detail_taxe' t.pk %}">{{ t.parcelle.reference }}</a></td>
+            <td>{{ t.annee }}</td>
+            <td>{{ t.montant_du|intcomma }} FCFA</td>
+            <td>{{ t.montant_paye|intcomma }} FCFA</td>
+            <td>{{ t.solde_restant|intcomma }} FCFA</td>
+            <td>
+              {% if t.statut == "PAYEE" %}<span class="badge badge-vert">Payée</span>
+              {% elif t.statut == "PARTIELLEMENT_PAYEE" %}<span class="badge badge-ocre">Partielle</span>
+              {% elif t.statut == "EN_RETARD" %}<span class="badge badge-rouge">En retard</span>
+              {% else %}<span class="badge badge-gris">Émise</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">
+            <div class="etat-vide">
+              <div class="etat-vide-icone">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <p>Aucune taxe ne correspond à ces critères.</p>
+            </div>
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">← Précédent</a>{% endif %}
+      <span class="actif">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Suivant →</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

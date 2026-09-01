@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titre %}À propos — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Découvrez la plateforme de cadastre et de fiscalité foncière de la région de Thiès : objectifs, publics visés et fonctionnement.{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:920px;">
+    <h1>À propos de la plateforme</h1>
+
+    <div class="a-propos-intro">
+      <p id="cadastre" style="font-size:1.05rem; color:#4b5262; scroll-margin-top:6rem;">
+        <strong>Le cadastre</strong> est l'inventaire officiel des parcelles d'un territoire. Chaque
+        parcelle y est immatriculée avec ses limites, sa superficie et son propriétaire, puis
+        rattachée à une <strong>valeur vénale</strong> estimée — le prix qu'elle vaudrait sur le
+        marché. C'est cette valeur qui sert de base au calcul de la <a href="#fiscalite">taxe
+        foncière</a> due chaque année.
+      </p>
+      <div class="a-propos-image">
+        <img src="{% static 'img/cadastre2.webp' %}" alt="Consultation d'un plan cadastral avec une maquette de maison">
+      </div>
+    </div>
+
+    <div id="fiscalite" style="scroll-margin-top:6rem; margin:1.5rem 0 2rem; background:var(--blanc); border:1px solid var(--sable-fonce); border-radius:var(--radius); padding:1.4rem 1.6rem; box-shadow:var(--ombre);">
+      <h3 style="margin-bottom:.5rem;">💰 La fiscalité foncière expliquée</h3>
+      <p style="color:#4b5262; margin:0;">
+        Une fois la valeur vénale d'une parcelle estimée, un taux fixé par la commune lui est
+        appliqué pour déterminer le montant de la taxe foncière annuelle. Cet avis de taxe est
+        ensuite émis au propriétaire, qui peut suivre son statut de paiement et son taux de
+        recouvrement depuis le tableau de bord des agents.
+      </p>
+    </div>
+
+    <div class="a-propos-points">
+      <div class="a-propos-point">
+        <h3>🔎 Visiteur</h3>
+        <p>Grand public, sans compte : consulte le statut d'une parcelle par référence, les actualités et les informations générales.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>🗂️ Agent</h3>
+        <p>Compte authentifié : gère les parcelles et les avis de taxe, et consulte le tableau de bord de suivi.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>🛡️ Administrateur</h3>
+        <p>Accès complet : tout ce que fait un agent, plus la création des comptes et l'attribution des rôles.</p>
+      </div>
+    </div>
+
+    <div class="a-propos-galerie">
+      <img src="{% static 'img/thies.jpg' %}" alt="Vue de la région de Thiès, Sénégal">
+      <img src="{% static 'img/plan-cadastral-et-valeur-juridique-en-matiere-de-propriete-fonciere-1.png' %}" alt="Illustration d'un plan cadastral">
+      <img src="{% static 'img/cadastre4.jpg' %}" alt="Document officiel de titre foncier">
+    </div>
+
+    <p style="color:#4b5262;">
+      Les données affichées ici sont <strong>fictives</strong> et générées à des fins de
+      démonstration technique dans le cadre d'un projet de fin de cycle.
+    </p>
+  </div>
+</section>
+{% endblock %}

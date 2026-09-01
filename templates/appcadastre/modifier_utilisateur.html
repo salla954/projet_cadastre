@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titre %}Modifier {{ utilisateur_cible.username }}{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:560px;">
+    <div class="section-titre">
+      <h1>Modifier le compte</h1>
+      <a href="{% url 'appcadastre:liste_utilisateurs' %}" class="voir-tout">← Utilisateurs</a>
+    </div>
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;">
+      <p style="margin-top:0;"><strong>{{ utilisateur_cible.username }}</strong> — {{ utilisateur_cible.email|default:"aucun e-mail" }}</p>
+
+      {% if utilisateur_cible == request.user %}
+        <p class="alerte alerte-info">Ceci est votre propre compte : vous ne pouvez pas retirer vos droits d'administrateur ni le désactiver.</p>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="id_role">Rôle</label>
+          {{ form.role }}
+        </div>
+        <div class="champ" style="display:flex; align-items:center; gap:.5rem;">
+          {{ form.actif }}
+          <label for="id_actif" style="margin:0;">Compte actif</label>
+        </div>
+        <button type="submit" class="btn btn-primaire" style="width:100%;">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

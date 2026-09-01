@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titre %}Comprendre le cadastre — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Guide complet du cadastre : documents nécessaires, étapes de l'immatriculation, valeur vénale, calcul et paiement de la taxe foncière, checklist et FAQ pour être en règle.{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: url('{% static 'img/cadastre1.jpg' %}');">
+  <div class="conteneur">
+    <span class="hero-eyebrow">📍 Guide du visiteur</span>
+    <h1>Comprendre le cadastre</h1>
+    <p class="lead">
+      Le cadastre, l'immatriculation d'une parcelle, la valeur vénale, la taxe foncière : autant de mots
+      qui reviennent souvent, mais que l'on comprend rarement. Ce guide réunit toutes les informations et
+      tous les documents nécessaires pour être en règle avec le cadastre et la fiscalité foncière.
+    </p>
+    <div class="hero-actions">
+      <a href="{% url 'core:consultation_publique' %}" class="btn btn-primaire">Consulter une parcelle</a>
+      <a href="{% url 'core:a_propos' %}" class="btn btn-secondaire">À propos de la plateforme</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-bottom:0;">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="alerte alerte-info">
+      <strong>Au sommaire :</strong>
+      <a href="#cadastre">Le cadastre</a> ·
+      <a href="#immatriculation">L'immatriculation</a> ·
+      <a href="#documents-immatriculation">Documents à fournir</a> ·
+      <a href="#etapes">Les étapes</a> ·
+      <a href="#valeur-venale">La valeur vénale</a> ·
+      <a href="#taxe-fonciere">La taxe foncière</a> ·
+      <a href="#documents-fiscalite">Documents fiscaux</a> ·
+      <a href="#checklist">Checklist</a> ·
+      <a href="#faq">FAQ</a> ·
+      <a href="#glossaire">Glossaire</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="cadastre">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Qu'est-ce que le cadastre ?</h2>
+    </div>
+    <p style="font-size:1.05rem; color:#4b5262;">
+      Le <strong>cadastre</strong> est l'inventaire officiel des parcelles de terrain d'un territoire. Pour
+      chaque parcelle, il enregistre sa <strong>référence cadastrale</strong> (son identifiant unique), sa
+      localisation, sa superficie, ainsi que l'identité de son ou ses propriétaires. Il sert de base légale
+      et technique à toute décision liée au foncier : vente, héritage, construction ou imposition.
+    </p>
+
+    <div class="a-propos-points" style="margin-top:1.5rem;">
+      <div class="a-propos-point">
+        <h3>🧭 Référence cadastrale</h3>
+        <p>Un code unique attribué à chaque parcelle, qui permet de la retrouver instantanément dans la base de données.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>📐 Superficie</h3>
+        <p>La surface exacte de la parcelle, mesurée en mètres carrés, qui sert notamment au calcul de sa valeur.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>👤 Propriétaire</h3>
+        <p>La ou les personnes reconnues comme détentrices légales de la parcelle auprès des services du cadastre.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="immatriculation" style="background:var(--sable, #f6f1e9);">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Qu'est-ce que l'immatriculation ?</h2>
+    </div>
+    <p style="font-size:1.05rem; color:#4b5262;">
+      <strong>Immatriculer</strong> une parcelle, c'est l'inscrire officiellement au cadastre et lui délivrer
+      un <strong>titre foncier</strong>. Une parcelle immatriculée est juridiquement sécurisée : son
+      propriétaire est clairement identifié et ses droits sont opposables à tous. Une parcelle
+      <strong>non immatriculée</strong> peut faire l'objet de litiges de propriété et n'est pas encore
+      reconnue dans le système fiscal officiel.
+    </p>
+    <p style="font-size:1.05rem; color:#4b5262;">Sur la plateforme, chaque parcelle affiche clairement son statut :</p>
+
+    <div class="table-conteneur">
+      <table>
+        <thead><tr><th>Statut</th><th>Ce que cela signifie</th><th>Ce que vous pouvez faire</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-vert">Immatriculée</span></td>
+            <td>La parcelle possède un titre foncier et figure dans le registre officiel.</td>
+            <td>Vendre, hypothéquer ou transmettre le terrain en toute sécurité.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-ocre">En cours d'immatriculation</span></td>
+            <td>La procédure a été engagée (bornage ou publication en cours) mais n'est pas finalisée.</td>
+            <td>Suivre l'avancement auprès du service du cadastre ; patienter le délai d'opposition.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-rouge">Non immatriculée</span></td>
+            <td>Aucune démarche d'inscription n'a encore été effectuée.</td>
+            <td>Déposer une réquisition d'immatriculation (voir les étapes ci-dessous).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="documents-immatriculation">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Documents nécessaires pour immatriculer une parcelle</h2>
+    </div>
+
+    <div class="a-propos-intro" style="margin-bottom:2rem;">
+      <p style="font-size:1.05rem; color:#4b5262;">
+        Pour engager ou finaliser l'immatriculation d'une parcelle, les documents suivants sont généralement
+        demandés par le service du cadastre. La liste exacte peut varier selon la situation (achat, héritage,
+        terrain communal) ; il est conseillé de la confirmer auprès du bureau du cadastre de votre commune.
+      </p>
+      <div class="a-propos-image">
+        <img src="{% static 'img/illustration-documents.svg' %}" alt="Illustration d'un dossier d'immatriculation avec tampon officiel">
+      </div>
+    </div>
+
+    <div class="documents-grille">
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#fff" stroke="#1B2A4A" stroke-width="1.4"/><rect x="6.5" y="5.5" width="8" height="2" fill="#3A6B4C"/><rect x="6.5" y="5.5" width="8" height="0.8" fill="#E4A94F" y2="6.3"/><line x1="6.5" y1="11" x2="15" y2="11" stroke="#c9c2ae" stroke-width="1"/><line x1="6.5" y1="14" x2="15" y2="14" stroke="#c9c2ae" stroke-width="1"/><circle cx="17" cy="16" r="3.4" fill="none" stroke="#B3452C" stroke-width="1.1"/><text x="17" y="17.1" font-size="3" text-anchor="middle" fill="#B3452C" font-family="sans-serif" font-weight="bold">RS</text></svg></div>
+        <p>Formulaire officiel qui ouvre la procédure auprès du service du cadastre.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="1.5" y="5" width="21" height="14" rx="1.6" fill="#fff" stroke="#1B2A4A" stroke-width="1.2"/><rect x="1.5" y="5" width="21" height="2.4" fill="#3A6B4C"/><rect x="1.5" y="7.4" width="21" height="1" fill="#E4A94F"/><rect x="1.5" y="8.4" width="21" height="1" fill="#B3452C"/><text x="12" y="11.6" font-size="2.3" text-anchor="middle" fill="#1B2A4A" font-family="sans-serif" font-weight="bold">CEDEAO • SÉNÉGAL</text><rect x="3.2" y="12.5" width="5.5" height="5" rx=".6" fill="#EDE7D9" stroke="#1B2A4A" stroke-width=".7"/><circle cx="6" cy="14.3" r="1.2" fill="#1B2A4A"/><path d="M4 17c.4-1.4 3.6-1.4 4 0" fill="#1B2A4A"/><line x1="10.5" y1="13" x2="20.5" y2="13" stroke="#c9c2ae" stroke-width=".9"/><line x1="10.5" y1="15" x2="20.5" y2="15" stroke="#c9c2ae" stroke-width=".9"/><line x1="10.5" y1="17" x2="17" y2="17" stroke="#c9c2ae" stroke-width=".9"/></svg></div>
+        <h3>Pièce d'identité du demandeur</h3>
+        <p>Justifie l'identité du propriétaire déclaré.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="#fff" stroke="#1B2A4A" stroke-width="1.3"/><circle cx="4" cy="6" r="2" fill="#EDE7D9" stroke="#1B2A4A" stroke-width="1"/><circle cx="4" cy="19" r="2" fill="#EDE7D9" stroke="#1B2A4A" stroke-width="1"/><line x1="7" y1="8" x2="16" y2="8" stroke="#c9c2ae" stroke-width="1"/><line x1="7" y1="11" x2="16" y2="11" stroke="#c9c2ae" stroke-width="1"/><line x1="7" y1="14" x2="13" y2="14" stroke="#c9c2ae" stroke-width="1"/><path d="M8 17.5l1.3 1.3L13 15" fill="none" stroke="#3A6B4C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Justificatif de propriété ou d'occupation</h3>
+        <p>Acte de vente, attestation d'attribution, acte de succession ou délibération municipale.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><polygon points="2 6 2 20 9 17 15 20 22 17 22 4 15 7 9 4 2 6" fill="#fff" stroke="#1B2A4A" stroke-width="1.2"/><line x1="9" y1="4" x2="9" y2="17" stroke="#c9c2ae" stroke-width="1" stroke-dasharray="2 2"/><line x1="15" y1="7" x2="15" y2="20" stroke="#c9c2ae" stroke-width="1" stroke-dasharray="2 2"/><circle cx="9" cy="10" r="2" fill="#C98A2C"/><circle cx="16" cy="12" r="2" fill="#C98A2C"/></svg></div>
+        <h3>Plan de bornage / plan géométrique</h3>
+        <p>Localise précisément les limites de la parcelle, établi par un géomètre agréé.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z" fill="#fff" stroke="#1B2A4A" stroke-width="1.3"/><path d="M12 2.6l6.3 2.36v.34H5.7v-.34z" fill="#3A6B4C"/><path d="M9 12.5l2 2 4-4.2" fill="none" stroke="#C98A2C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <p>Atteste qu'aucune contestation n'existe sur la parcelle au moment de la demande.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M5 2h14v18l-2.2-1.4L14.5 20l-2.2-1.4L10 20l-2.3-1.4L5.5 20 3 18.5V2z" fill="#fff" stroke="#1B2A4A" stroke-width="1.1" transform="translate(1,0.5) scale(0.95)"/><line x1="7" y1="7" x2="17" y2="7" stroke="#c9c2ae" stroke-width="1"/><line x1="7" y1="10" x2="17" y2="10" stroke="#c9c2ae" stroke-width="1"/><text x="12" y="15.5" font-size="5" text-anchor="middle" fill="#3A6B4C" font-family="sans-serif" font-weight="bold">FCFA</text></svg></div>
+        <h3>Quittances des impôts fonciers antérieurs</h3>
+        <p>Prouve que la fiscalité déjà due sur le terrain est à jour (le cas échéant).</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+        <h3>Photos ou constat de mise en valeur</h3>
+        <p>Justifie l'usage effectif de la parcelle (habitation, culture, construction).</p>
+      </div>
+    </div>
+
+    <div class="alerte alerte-warning" style="margin-top:1rem;">
+      <strong>Bon à savoir :</strong> conservez toujours une copie de chaque document déposé et demandez un
+      récépissé de dépôt : il fait foi en cas de besoin pendant l'instruction du dossier.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="etapes" style="background:var(--sable, #f6f1e9);">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Les étapes de la procédure d'immatriculation</h2>
+    </div>
+
+    <div class="a-propos-intro" style="margin-bottom:1.5rem;">
+      <p style="font-size:1.05rem; color:#4b5262;">
+        Une fois le dossier déposé, la parcelle suit un parcours précis avant de recevoir son titre foncier.
+        Le plan de bornage, réalisé par un géomètre, en est une étape centrale : il fixe juridiquement les
+        limites exactes du terrain.
+      </p>
+      <div class="a-propos-image">
+        <img src="{% static 'img/illustration-etapes.svg' %}" alt="Illustration d'un bornage de parcelle par un géomètre">
+      </div>
+    </div>
+
+    <div class="a-propos-points">
+      <div class="a-propos-point">
+        <h3>1️⃣ Dépôt de la demande</h3>
+        <p>La réquisition d'immatriculation et les pièces justificatives sont déposées auprès du service du cadastre.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>2️⃣ Bornage du terrain</h3>
+        <p>Un géomètre matérialise les limites exactes de la parcelle et établit le plan cadastral correspondant.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>3️⃣ Publication et opposition</h3>
+        <p>La demande est publiée pour permettre à d'éventuels tiers de faire valoir leurs droits pendant un délai légal.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>4️⃣ Instruction du dossier</h3>
+        <p>En l'absence d'opposition recevable, le service du cadastre examine et valide le dossier complet.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>5️⃣ Délivrance du titre foncier</h3>
+        <p>La parcelle est inscrite au livre foncier et le titre foncier est remis au propriétaire.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>6️⃣ Mise à jour sur la plateforme</h3>
+        <p>Le statut de la parcelle passe à « Immatriculée » et devient consultable publiquement par référence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="valeur-venale">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Comment la valeur vénale est-elle estimée ?</h2>
+    </div>
+    <p style="font-size:1.05rem; color:#4b5262;">
+      La <strong>valeur vénale</strong> correspond au prix auquel une parcelle pourrait raisonnablement se
+      vendre sur le marché à un moment donné. Elle est estimée en tenant compte principalement de :
+    </p>
+    <ul style="font-size:1.05rem; color:#4b5262; line-height:1.9; padding-left:1.3rem;">
+      <li>la <strong>localisation</strong> de la parcelle (commune, quartier, proximité des axes) ;</li>
+      <li>sa <strong>superficie</strong> ;</li>
+      <li>l'usage du terrain (habitation, commerce, agriculture) ;</li>
+      <li>les prix pratiqués sur des parcelles comparables dans la même zone.</li>
+    </ul>
+    <p style="font-size:1.05rem; color:#4b5262;">
+      Cette valeur, une fois déterminée, devient la référence sur laquelle repose le calcul de la taxe foncière.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="taxe-fonciere" style="background:var(--sable, #f6f1e9);">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Comment la taxe foncière est-elle calculée ?</h2>
+    </div>
+    <p style="font-size:1.05rem; color:#4b5262;">
+      La <strong>taxe foncière</strong> est l'impôt annuel dû par le propriétaire d'une parcelle immatriculée.
+      Elle est calculée en appliquant un taux d'imposition à la valeur vénale de la parcelle :
+    </p>
+    <div class="table-conteneur">
+      <table>
+        <thead><tr><th>Élément</th><th>Rôle dans le calcul</th></tr></thead>
+        <tbody>
+          <tr><td>Valeur vénale</td><td>Base de calcul de l'impôt (montant estimé de la parcelle)</td></tr>
+          <tr><td>Taux d'imposition</td><td>Pourcentage fixé par la réglementation en vigueur</td></tr>
+          <tr><td>Montant dû</td><td>Valeur vénale × taux d'imposition = taxe foncière annuelle</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:1.05rem; color:#4b5262; margin-top:1rem;">
+      Une fois l'avis de taxe émis, le propriétaire peut effectuer son paiement en une ou plusieurs fois. La
+      plateforme permet de suivre à tout moment le montant dû, le montant déjà payé et le solde restant.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="documents-fiscalite">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Documents pour être à jour avec la fiscalité foncière</h2>
+    </div>
+
+    <div class="a-propos-intro" style="margin-bottom:1.5rem;">
+      <p style="font-size:1.05rem; color:#4b5262;">
+        Une fois la parcelle immatriculée, rester « en règle » consiste surtout à suivre et conserver les
+        documents liés au paiement de l'impôt foncier, année après année.
+      </p>
+      <div class="a-propos-image">
+        <img src="{% static 'img/illustration-fiscalite.svg' %}" alt="Illustration d'un avis de taxe foncière et d'un paiement">
+      </div>
+    </div>
+
+    <div class="documents-grille">
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#fff" stroke="#1B2A4A" stroke-width="1.3"/><rect x="6" y="3.4" width="8" height="1.3" fill="#3A6B4C"/><rect x="6" y="4.7" width="8" height="1.3" fill="#E4A94F"/><rect x="6" y="6" width="8" height="1.3" fill="#B3452C"/><line x1="6" y1="11" x2="15" y2="11" stroke="#c9c2ae" stroke-width="1"/><line x1="6" y1="14" x2="15" y2="14" stroke="#c9c2ae" stroke-width="1"/><text x="10.5" y="18.5" font-size="4.5" fill="#1B2A4A" font-family="sans-serif" font-weight="bold">FCFA</text></svg></div>
+        <p>Notifie chaque année le montant dû pour la parcelle concernée.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4.5 2h13v18l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3-1-.7V2z" fill="#fff" stroke="#1B2A4A" stroke-width="1.1"/><line x1="7" y1="6.5" x2="15" y2="6.5" stroke="#c9c2ae" stroke-width="1"/><line x1="7" y1="9.5" x2="15" y2="9.5" stroke="#c9c2ae" stroke-width="1"/><circle cx="15.5" cy="14" r="4.2" fill="none" stroke="#3A6B4C" stroke-width="1.2" opacity=".85" transform="rotate(-15 15.5 14)"/><path d="M13.6 14l1.2 1.2 2-2.2" fill="none" stroke="#3A6B4C" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Quittance / reçu de paiement</h3>
+        <p>Preuve officielle qu'un paiement a bien été effectué, à conserver précieusement.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6.2" fill="#fff" stroke="#1B2A4A" stroke-width="1.3"/><path d="M9 8.6l2 2 4-4.2" fill="none" stroke="#3A6B4C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 14.5l-1.8 6.8 4.8-2.4 4.8 2.4-1.8-6.8" fill="#C98A2C" stroke="#1B2A4A" stroke-width="1"/></svg></div>
+        <h3>Certificat de non-redevance</h3>
+        <p>Atteste qu'aucune taxe foncière n'est due sur la parcelle, souvent exigé pour une vente.</p>
+      </div>
+      <div class="document-carte">
+        <div class="service-icone" style="background:#EDE7D9;"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="4" y="10" width="4" height="10" rx="1" fill="#3A6B4C"/><rect x="10" y="4" width="4" height="16" rx="1" fill="#E4A94F"/><rect x="16" y="7" width="4" height="13" rx="1" fill="#B3452C"/></svg></div>
+        <h3>Relevé de situation fiscale</h3>
+        <p>Récapitule l'historique des montants dus et payés sur plusieurs années.</p>
+      </div>
+    </div>
+
+    <div class="alerte alerte-info" style="margin-top:1rem;">
+      <strong>Astuce :</strong> le statut de paiement (à jour, partiel, en retard) de chaque parcelle est
+      visible directement via la <a href="{% url 'core:consultation_publique' %}">consultation publique</a>.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="checklist" style="background:var(--sable, #f6f1e9);">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Checklist : êtes-vous en règle ?</h2>
+    </div>
+    <p style="font-size:1.05rem; color:#4b5262;">Pour être pleinement en règle vis-à-vis du cadastre et de la fiscalité foncière, vérifiez que vous disposez de :</p>
+    <div class="a-propos-points">
+      <div class="a-propos-point">
+        <h3>✅ Un titre foncier</h3>
+        <p>La parcelle est immatriculée et apparaît avec le statut « Immatriculée » sur la plateforme.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>✅ Un plan de bornage à jour</h3>
+        <p>Les limites de la parcelle correspondent bien à celles enregistrées au cadastre.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>✅ Vos avis de taxe réglés</h3>
+        <p>Aucun solde restant dû sur les années précédentes, vérifiable via la consultation publique.</p>
+      </div>
+      <div class="a-propos-point">
+        <h3>✅ Vos quittances conservées</h3>
+        <p>Chaque paiement de taxe foncière est justifié par une quittance gardée en lieu sûr.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Questions fréquentes</h2>
+    </div>
+
+    <div class="a-propos-point" style="margin-bottom:1rem;">
+      <h3>Ma parcelle n'est pas encore immatriculée, est-ce grave ?</h3>
+      <p>Ce n'est pas une infraction en soi, mais cela expose à des litiges de propriété et empêche la
+      reconnaissance officielle de vos droits. Il est recommandé d'engager la procédure d'immatriculation
+      dès que possible.</p>
+    </div>
+    <div class="a-propos-point" style="margin-bottom:1rem;">
+      <h3>Que se passe-t-il si je ne paie pas ma taxe foncière ?</h3>
+      <p>Le solde impayé reste dû et s'accumule d'une année sur l'autre. Il peut compliquer une future
+      vente ou démarche administrative, un certificat de non-redevance étant souvent exigé.</p>
+    </div>
+    <div class="a-propos-point" style="margin-bottom:1rem;">
+      <h3>Où déposer mon dossier d'immatriculation ?</h3>
+      <p>Auprès du service du cadastre compétent pour la commune où se trouve la parcelle. La plateforme
+      permet ensuite de suivre le statut du dossier en ligne.</p>
+    </div>
+    <div class="a-propos-point">
+      <h3>Comment connaître le statut exact de ma parcelle ?</h3>
+      <p>Utilisez la <a href="{% url 'core:consultation_publique' %}">consultation publique</a> et recherchez
+      votre parcelle par sa référence cadastrale : statut d'immatriculation et situation fiscale s'affichent instantanément.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="glossaire" style="background:var(--sable, #f6f1e9);">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="section-titre">
+      <h2>Glossaire</h2>
+    </div>
+    <div class="table-conteneur">
+      <table>
+        <thead><tr><th>Terme</th><th>Définition</th></tr></thead>
+        <tbody>
+          <tr><td>Cadastre</td><td>Inventaire officiel des parcelles d'un territoire.</td></tr>
+          <tr><td>Référence cadastrale</td><td>Identifiant unique attribué à chaque parcelle.</td></tr>
+          <tr><td>Immatriculation</td><td>Inscription officielle d'une parcelle au registre foncier.</td></tr>
+          <tr><td>Titre foncier</td><td>Document juridique qui reconnaît et protège la propriété d'une parcelle immatriculée.</td></tr>
+          <tr><td>Bornage</td><td>Opération technique qui matérialise les limites exactes d'une parcelle.</td></tr>
+          <tr><td>Valeur vénale</td><td>Estimation du prix de vente d'une parcelle sur le marché.</td></tr>
+          <tr><td>Taxe foncière</td><td>Impôt annuel dû par le propriétaire d'une parcelle immatriculée.</td></tr>
+          <tr><td>Certificat de non-redevance</td><td>Document attestant qu'aucune taxe foncière n'est due sur une parcelle.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur" style="max-width:920px;">
+    <div class="cta-bandeau">
+      <div>
+        <h2>Envie de vérifier une parcelle précise ?</h2>
+        <p>Recherchez-la dès maintenant grâce à sa référence cadastrale.</p>
+      </div>
+      <a href="{% url 'core:consultation_publique' %}" class="btn btn-primaire">Consulter une parcelle</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

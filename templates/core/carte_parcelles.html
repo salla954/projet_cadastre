@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block titre %}Carte interactive des parcelles — Cadastre Thiès{% endblock %}
+{% block meta_description %}Carte interactive des parcelles cadastrales de la région de Thiès : localisation, statut d'immatriculation et usage.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css">
+<style>
+  #carte-interactive{
+    height: 62vh; min-height: 420px; width: 100%;
+    border-radius: var(--radius); box-shadow: var(--ombre); z-index: 1;
+  }
+  .legende-carte{
+    display:flex; flex-wrap:wrap; gap:.5rem 1.4rem;
+    margin: 0 0 1rem; font-size:.85rem; color: var(--anthracite);
+  }
+  .legende-item{ display:flex; align-items:center; gap:.45rem; }
+  .legende-puce{
+    width:12px; height:12px; border-radius:50%; display:inline-block;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.15);
+  }
+  #carte-compteur{ font-size:.85rem; color:#6b7280; margin: 0 0 .7rem; }
+  .popup-parcelle{ font-family: var(--font-body); min-width: 210px; }
+  .popup-parcelle h4{
+    margin:0 0 .4rem; font-family: var(--font-mono); font-size:.85rem; color: var(--bleu-nuit);
+  }
+  .popup-parcelle p{ margin:.15rem 0; font-size:.85rem; }
+  .popup-parcelle .popup-actions{ margin-top:.55rem; display:flex; gap:.5rem; flex-wrap:wrap; }
+  .popup-parcelle .popup-actions a{ font-size:.78rem; padding:.3rem .6rem; }
+  .leaflet-popup-content-wrapper{ border-radius: var(--radius); }
+</style>
+{% endblock %}
+
+{% block contenu %}
+<section class="section motif-cadastral">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Carte interactive des parcelles</h1>
+    </div>
+    <p>
+      Localisez les parcelles enregistrées dans la région de Thiès. Cliquez sur un point
+      pour consulter son statut ou télécharger son extrait de plan.
+    </p>
+
+    <form id="filtres-carte" class="form-inline" style="margin:1.3rem 0;">
+      <div class="champ">
+        <label for="f-commune">Commune</label>
+        <select id="f-commune" name="commune">
+          <option value="">Toutes</option>
+          {% for c in communes %}
+            <option value="{{ c.id }}">{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="champ">
+        <label for="f-statut">Statut</label>
+        <select id="f-statut" name="statut">
+          <option value="">Tous</option>
+          {% for valeur, libelle in statut_choices %}
+            <option value="{{ valeur }}">{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="champ">
+        <label for="f-usage">Usage</label>
+        <select id="f-usage" name="usage">
+          <option value="">Tous</option>
+          {% for valeur, libelle in usage_choices %}
+            <option value="{{ valeur }}">{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+
+    <div class="legende-carte">
+      <span class="legende-item"><span class="legende-puce" style="background:#3A6B4C;"></span> Immatriculée</span>
+      <span class="legende-item"><span class="legende-puce" style="background:#C98A2C;"></span> En cours d'immatriculation</span>
+      <span class="legende-item"><span class="legende-puce" style="background:#B3452C;"></span> En litige</span>
+      <span class="legende-item"><span class="legende-puce" style="background:#8a8f9a;"></span> Non immatriculée</span>
+    </div>
+
+    <p id="carte-compteur">Chargement des parcelles…</p>
+    <div id="carte-interactive" aria-label="Carte des parcelles cadastrales"></div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<script>
+(function () {
+  var COULEURS_STATUT = {
+    "IMMATRICULEE": "#3A6B4C",
+    "EN_COURS": "#C98A2C",
+    "LITIGE": "#B3452C",
+    "NON_IMMATRICULEE": "#8a8f9a"
+  };
+
+  var carte = L.map('carte-interactive').setView([14.75, -16.87], 10);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributeurs'
+  }).addTo(carte);
+
+  var groupeMarqueurs = L.markerClusterGroup({ maxClusterRadius: 45 });
+  carte.addLayer(groupeMarqueurs);
+
+  var compteurEl = document.getElementById('carte-compteur');
+  var formulaire = document.getElementById('filtres-carte');
+
+  function formatterNombre(n) {
+    return Number(n).toLocaleString('fr-FR');
+  }
+
+  function creerMarqueur(p) {
+    var couleur = COULEURS_STATUT[p.statut] || "#8a8f9a";
+    var marqueur = L.circleMarker([p.lat, p.lng], {
+      radius: 7,
+      color: '#ffffff',
+      weight: 1.5,
+      fillColor: couleur,
+      fillOpacity: 0.9
+    });
+
+    var popup =
+      '<div class="popup-parcelle">' +
+        '<h4>' + p.reference + '</h4>' +
+        '<p><strong>' + p.commune + '</strong> — ' + p.quartier + '</p>' +
+        '<p>Usage : ' + p.usage_libelle + '</p>' +
+        '<p>Statut : ' + p.statut_libelle + '</p>' +
+        '<p>Superficie : ' + formatterNombre(p.superficie_m2) + ' m²</p>' +
+        '<div class="popup-actions">' +
+          '<a href="' + p.url_consultation + '" class="btn btn-secondaire" style="color:var(--bleu-nuit); border-color:var(--bleu-nuit);">Consulter</a>' +
+          '<a href="' + p.url_plan + '" class="btn btn-primaire">Extrait de plan</a>' +
+        '</div>' +
+      '</div>';
+
+    marqueur.bindPopup(popup);
+    return marqueur;
+  }
+
+  function chargerParcelles() {
+    var params = new URLSearchParams(new FormData(formulaire));
+    compteurEl.textContent = "Chargement des parcelles…";
+
+    fetch("{% url 'core:carte_parcelles_donnees' %}?" + params.toString())
+      .then(function (reponse) { return reponse.json(); })
+      .then(function (donnees) {
+        groupeMarqueurs.clearLayers();
+        donnees.parcelles.forEach(function (p) {
+          groupeMarqueurs.addLayer(creerMarqueur(p));
+        });
+        compteurEl.textContent = formatterNombre(donnees.total) + " parcelle(s) géolocalisée(s) affichée(s).";
+      })
+      .catch(function () {
+        compteurEl.textContent = "Impossible de charger les parcelles pour le moment.";
+      });
+  }
+
+  formulaire.addEventListener('change', chargerParcelles);
+  chargerParcelles();
+})();
+</script>
+{% endblock %}

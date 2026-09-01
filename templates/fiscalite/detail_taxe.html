@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Taxe {{ taxe.annee }} — {{ taxe.parcelle.reference }}{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:760px;">
+    <a href="{% url 'fiscalite:liste_taxes' %}">← Retour aux taxes</a>
+    <h1>Taxe {{ taxe.annee }} — <span class="mono">{{ taxe.parcelle.reference }}</span></h1>
+
+    <div class="carte" style="margin-bottom:1.2rem;">
+      <div class="grille-2">
+        <p><strong>Parcelle :</strong> <a href="{% url 'cadastre:parcelle_detail' taxe.parcelle.pk %}">{{ taxe.parcelle.reference }}</a></p>
+        <p><strong>Taux appliqué :</strong> {{ taxe.taux_applique|floatformat:2 }}</p>
+        <p><strong>Montant dû :</strong> {{ taxe.montant_du|intcomma }} FCFA</p>
+        <p><strong>Montant payé :</strong> {{ taxe.montant_paye|intcomma }} FCFA</p>
+        <p><strong>Solde restant :</strong> {{ taxe.solde_restant|intcomma }} FCFA</p>
+        <p><strong>Date limite :</strong> {{ taxe.date_limite|date:"d/m/Y" }}</p>
+      </div>
+    </div>
+
+    <h2>Paiements enregistrés</h2>
+    <div class="table-conteneur">
+      <table>
+        <thead><tr><th>Date</th><th>Montant</th><th>Mode</th><th>Référence</th></tr></thead>
+        <tbody>
+          {% for p in taxe.paiements.all %}
+          <tr>
+            <td>{{ p.date_paiement|date:"d/m/Y" }}</td>
+            <td>{{ p.montant|intcomma }} FCFA</td>
+            <td>{{ p.get_mode_paiement_display }}</td>
+            <td class="mono">{{ p.reference_transaction|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">Aucun paiement enregistré.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

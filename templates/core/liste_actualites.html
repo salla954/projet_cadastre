@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titre %}Actualités — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <h1>Actualités</h1>
+    <div class="grille-3" style="margin-top:1.5rem;">
+      {% for a in actualites %}
+        <a href="{% url 'core:detail_actualite' a.pk %}" class="carte">
+          <span class="date">{{ a.date_publication|date:"d M Y" }}</span>
+          <h3>{{ a.titre }}</h3>
+          <p>{{ a.chapo }}</p>
+        </a>
+      {% empty %}
+        <p>Aucune actualité publiée pour le moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

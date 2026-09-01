@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Consultation publique — Cadastre Thiès{% endblock %}
+{% block contenu %}
+<section class="section motif-cadastral">
+  <div class="conteneur" style="max-width:700px;">
+    <h1>Consulter le statut d'une parcelle</h1>
+    <p>Saisissez la référence cadastrale (ex : <span class="mono">TH-2024-00147</span>) pour connaître son statut d'immatriculation.</p>
+
+    <form method="get" class="form-inline" style="margin:1.5rem 0;">
+      <div class="champ">
+        <label for="reference">Référence cadastrale</label>
+        <input type="text" id="reference" name="reference" value="{{ reference }}" placeholder="TH-2024-00147" required>
+      </div>
+      <button type="submit" class="btn btn-primaire">Rechercher</button>
+    </form>
+
+    {% if reference %}
+      {% if resultat %}
+        <div class="carte">
+          <span class="date mono">{{ resultat.reference }}</span>
+          <h3>{{ resultat.commune }} — {{ resultat.quartier|default:"Quartier non précisé" }}</h3>
+          <p>
+            <strong>Statut :</strong>
+            {% if resultat.statut == "IMMATRICULEE" %}<span class="badge badge-vert">Immatriculée</span>
+            {% elif resultat.statut == "EN_COURS" %}<span class="badge badge-ocre">En cours d'immatriculation</span>
+            {% elif resultat.statut == "LITIGE" %}<span class="badge badge-rouge">En litige</span>
+            {% else %}<span class="badge badge-gris">Non immatriculée</span>{% endif %}
+          </p>
+          <p><strong>Usage :</strong> {{ resultat.get_usage_display }}</p>
+          <p><strong>Superficie :</strong> {{ resultat.superficie_m2|intcomma }} m²</p>
+          <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--sable-fonce);">
+            <button type="button" id="btn-apercu-plan" class="btn btn-secondaire" onclick="afficherApercuPlan(this)">
+              👁️ Aperçu de l'extrait de plan
+            </button>
+            <a href="{% url 'core:extrait_plan' resultat.reference %}?telecharger=1" class="btn btn-primaire">
+              ⬇️ Télécharger le PDF
+            </a>
+            <p style="font-size:.82rem; color:#8a8f9a; margin-top:.6rem;">
+              Schéma indicatif proportionné à la superficie enregistrée — ne remplace pas un plan de bornage officiel.
+            </p>
+
+            <div id="apercu-plan-conteneur" style="display:none; margin-top:1.2rem;">
+              <iframe
+                id="apercu-plan-iframe"
+                style="width:100%; height:70vh; border:1px solid var(--sable-fonce); border-radius:var(--radius); background:#fff;"
+                title="Aperçu de l'extrait de plan cadastral">
+              </iframe>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function afficherApercuPlan(bouton) {
+            const conteneur = document.getElementById('apercu-plan-conteneur');
+            const iframe = document.getElementById('apercu-plan-iframe');
+            const estVisible = conteneur.style.display !== 'none';
+            if (estVisible) {
+              conteneur.style.display = 'none';
+              bouton.textContent = "👁️ Aperçu de l'extrait de plan";
+            } else {
+              if (!iframe.dataset.charge) {
+                iframe.src = "{% url 'core:extrait_plan' resultat.reference %}";
+                iframe.dataset.charge = "1";
+              }
+              conteneur.style.display = 'block';
+              bouton.textContent = "🙈 Masquer l'aperçu";
+              conteneur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }
+        </script>
+      {% else %}
+        <div class="carte">
+          <p>Aucune parcelle ne correspond à la référence <strong>{{ reference }}</strong>.</p>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

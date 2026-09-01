@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Connexion à l'espace agent — Cadastre et Fiscalité foncière, région de Thiès.">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <title>Connexion — Cadastre &amp; Fiscalité foncière Thiès</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <div class="page-connexion page-connexion-pleine">
+
+    <div class="connexion-visuel">
+      <div class="connexion-slide" style="background-image:url('{% static 'img/cadastre1.jpg' %}');"></div>
+      <div class="connexion-slide" style="background-image:url('{% static 'img/cadastre4.jpg' %}');"></div>
+      <div class="connexion-slide" style="background-image:url('{% static 'img/plan-cadastral-et-valeur-juridique-en-matiere-de-propriete-fonciere-1.png' %}');"></div>
+      <div class="connexion-slide" style="background-image:url('{% static 'img/image.jpg' %}');"></div>
+
+      <a href="{% url 'core:accueil' %}" class="connexion-logo">
+        <span class="puce"></span> Cadastre &amp; Fiscalité — Thiès
+      </a>
+
+      <div class="connexion-visuel-texte">
+        <span class="connexion-bienvenue">👋 Bienvenue</span>
+        <h2>La plateforme du Cadastre &amp; de la Fiscalité foncière de Thiès</h2>
+        <p>Heureux de vous accueillir. Retrouvez ici le suivi des parcelles, des titres fonciers et de la fiscalité locale, en un seul endroit.</p>
+      </div>
+
+      <div class="connexion-atouts">
+        <span class="connexion-atout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Connexion sécurisée
+        </span>
+        <span class="connexion-atout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M9 13h1M14 9h1M14 13h1"/></svg>
+          Service public
+        </span>
+        <span class="connexion-atout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Région de Thiès
+        </span>
+      </div>
+    </div>
+
+    <div class="connexion-formulaire">
+      <div class="carte-connexion">
+        <div class="connexion-icone">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <span class="connexion-etiquette">Connexion</span>
+        <h1>Espace agent</h1>
+        <p class="connexion-sous-titre">Connectez-vous avec vos identifiants professionnels pour accéder à votre espace.</p>
+
+        {% if form.errors %}
+          <p class="connexion-erreur">Identifiant ou mot de passe incorrect. Veuillez réessayer.</p>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="champ">
+            <label for="id_username">Identifiant</label>
+            <div class="champ-entree">
+              <svg class="icone-champ" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+              <input type="text" name="username" id="id_username" required autofocus autocomplete="username">
+            </div>
+          </div>
+          <div class="champ">
+            <label for="id_password">Mot de passe</label>
+            <div class="champ-entree a-bouton-oeil">
+              <svg class="icone-champ" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              <input type="password" name="password" id="id_password" required autocomplete="current-password">
+              <button type="button" class="toggle-mdp" id="toggle-mdp" aria-label="Afficher le mot de passe" aria-pressed="false">
+                <svg class="icone-oeil" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7.5 11-7.5S23 12 23 12s-4 7.5-11 7.5S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icone-oeil-barre" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5 0-9.27-3.11-11-7.5a13.16 13.16 0 0 1 3.06-4.44M9.9 4.24A10.94 10.94 0 0 1 12 4c5 0 9.27 3.11 11 7.5a13.15 13.15 0 0 1-1.67 2.68M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:.4rem;">Se connecter</button>
+          <input type="hidden" name="next" value="{{ next }}">
+        </form>
+
+        <div class="separateur-ou"><span>ou</span></div>
+
+        <a href="{% url 'core:accueil' %}" class="btn btn-contour-sombre" style="width:100%; text-align:center; display:block;">
+          Continuer en visiteur, sans compte
+        </a>
+        <p class="connexion-aide">
+          Consultez les actualités et le statut d'une parcelle sans vous connecter.
+        </p>
+
+        <p class="connexion-pied">© {% now "Y" %} Cadastre &amp; Fiscalité foncière — Région de Thiès</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    (function () {
+      var bouton = document.getElementById('toggle-mdp');
+      var champ = document.getElementById('id_password');
+      if (!bouton || !champ) return;
+      bouton.addEventListener('click', function () {
+        var affiche = champ.type === 'password';
+        champ.type = affiche ? 'text' : 'password';
+        bouton.classList.toggle('actif', affiche);
+        bouton.setAttribute('aria-pressed', affiche ? 'true' : 'false');
+        bouton.setAttribute('aria-label', affiche ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+      });
+    })();
+  </script>
+
+</body>
+</html>

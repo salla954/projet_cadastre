@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block titre %}Gestion des utilisateurs{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <div>
+        <h1>Gestion des utilisateurs</h1>
+        <p style="color:#6b7280; margin-top:.2rem;">Créez des comptes agents ou administrateurs et gérez leurs rôles.</p>
+      </div>
+      <a href="{% url 'appcadastre:creer_utilisateur' %}" class="btn btn-primaire">+ Nouveau compte</a>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <p class="alerte alerte-{{ message.tags }}">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>E-mail</th>
+            <th>Rôle</th>
+            <th>Service</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in utilisateurs %}
+          <tr>
+            <td><strong>{{ u.username }}</strong>{% if u == request.user %} <span class="badge badge-gris">vous</span>{% endif %}</td>
+            <td>{{ u.email|default:"—" }}</td>
+            <td>
+              {% if u.profil.role == "ADMINISTRATEUR" %}<span class="badge badge-ocre">Administrateur</span>
+              {% elif u.profil.role == "AGENT" %}<span class="badge badge-vert">Agent</span>
+              {% else %}<span class="badge badge-gris">Visiteur</span>{% endif %}
+            </td>
+            <td>{{ u.profil.service|default:"—" }}</td>
+            <td>
+              {% if u.is_active %}<span class="badge badge-vert">Actif</span>
+              {% else %}<span class="badge badge-rouge">Désactivé</span>{% endif %}
+            </td>
+            <td><a href="{% url 'appcadastre:modifier_utilisateur' u.pk %}">Modifier</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">
+            <div class="etat-vide">
+              <p>Aucun utilisateur enregistré.</p>
+            </div>
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

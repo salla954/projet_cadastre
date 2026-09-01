@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titre %}Page introuvable — Cadastre &amp; Fiscalité Thiès{% endblock %}
+{% block contenu %}
+<section class="section motif-cadastral" style="min-height:60vh; display:flex; align-items:center;">
+  <div class="conteneur" style="text-align:center; max-width:560px;">
+    <div class="hero-eyebrow" style="background:var(--sable-fonce); border-color:var(--sable-fonce); color:var(--ocre);">Erreur 404</div>
+    <h1 style="font-size:2rem; margin-top:1rem;">Cette parcelle n'existe pas sur notre plan</h1>
+    <p style="color:#4b5262;">La page que vous recherchez a été déplacée, supprimée, ou son adresse est incorrecte.</p>
+    <a href="{% url 'core:accueil' %}" class="btn btn-primaire" style="margin-top:1rem;">Retour à l'accueil</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}Plateforme de consultation cadastrale et de suivi de la fiscalité foncière pour la région de Thiès, Sénégal.{% endblock %}">
+  <meta property="og:title" content="Cadastre &amp; Fiscalité foncière — Région de Thiès">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <title>{% block titre %}Le Cadastre au cœur de la Fiscalité foncière — Région de Thiès{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <a href="#contenu-principal" class="lien-evitement">Aller au contenu principal</a>
+
+  <header class="entete">
+    <div class="conteneur">
+      <a href="{% url 'core:accueil' %}" class="logo">
+        <span class="puce"></span> Cadastre &amp; Fiscalité — Thiès
+      </a>
+      <input type="checkbox" id="bascule-menu" class="bascule-menu">
+      <label for="bascule-menu" class="bouton-hamburger" aria-label="Ouvrir le menu">
+        <span></span><span></span><span></span>
+      </label>
+      <nav class="nav-liens" id="nav-principale">
+        <a href="{% url 'core:accueil' %}" class="{% if request.resolver_match.view_name == 'core:accueil' %}actif{% endif %}">Accueil</a>
+        <a href="{% url 'core:consultation_publique' %}" class="{% if request.resolver_match.view_name == 'core:consultation_publique' %}actif{% endif %}">Consulter une parcelle</a>
+        <a href="{% url 'core:carte_parcelles' %}" class="{% if request.resolver_match.view_name == 'core:carte_parcelles' %}actif{% endif %}">Carte</a>
+        <a href="{% url 'core:liste_actualites' %}" class="{% if 'actualite' in request.resolver_match.view_name %}actif{% endif %}">Actualités</a>
+        <a href="{% url 'core:a_propos' %}" class="{% if request.resolver_match.view_name == 'core:a_propos' %}actif{% endif %}">À propos</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard:accueil' %}" class="{% if request.resolver_match.view_name == 'dashboard:accueil' %}actif{% endif %}">Tableau de bord</a>
+          {% if user.is_superuser or user.profil.est_administrateur %}
+            <a href="{% url 'appcadastre:liste_utilisateurs' %}" class="{% if 'utilisateur' in request.resolver_match.url_name %}actif{% endif %}">Utilisateurs</a>
+          {% endif %}
+          <form method="post" action="{% url 'appcadastre:deconnexion' %}" class="form-deconnexion">
+            {% csrf_token %}
+            <button type="submit" class="lien-bouton">Déconnexion</button>
+          </form>
+        {% else %}
+          <a href="{% url 'appcadastre:connexion' %}" class="bouton-nav">Espace agent</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu-principal">
+    {% block contenu %}{% endblock %}
+  </main>
+
+  <footer class="pied">
+    <div class="conteneur">
+      <div>
+        <strong>Cadastre &amp; Fiscalité foncière — Région de Thiès</strong><br>
+        Plateforme de démonstration à données fictives.
+      </div>
+      <div>
+        <a href="{% url 'core:a_propos' %}">À propos</a> ·
+        <a href="{% url 'core:consultation_publique' %}">Consultation publique</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

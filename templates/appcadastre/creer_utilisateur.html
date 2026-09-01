@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titre %}Nouveau compte utilisateur{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:640px;">
+    <div class="section-titre">
+      <h1>Nouveau compte</h1>
+      <a href="{% url 'appcadastre:liste_utilisateurs' %}" class="voir-tout">← Utilisateurs</a>
+    </div>
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;">
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="id_username">Identifiant</label>
+          {{ form.username }}
+          {% for erreur in form.username.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+        <div class="champ">
+          <label for="id_email">E-mail</label>
+          {{ form.email }}
+        </div>
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_first_name">Prénom</label>
+            {{ form.first_name }}
+          </div>
+          <div class="champ">
+            <label for="id_last_name">Nom</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_role">Rôle</label>
+            {{ form.role }}
+          </div>
+          <div class="champ">
+            <label for="id_service">Service</label>
+            {{ form.service }}
+          </div>
+        </div>
+        <div class="champ">
+          <label for="id_telephone">Téléphone</label>
+          {{ form.telephone }}
+        </div>
+        <div class="champ">
+          <label for="id_password1">Mot de passe</label>
+          {{ form.password1 }}
+          {% for erreur in form.password1.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+        <div class="champ">
+          <label for="id_password2">Confirmation du mot de passe</label>
+          {{ form.password2 }}
+          {% for erreur in form.password2.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primaire" style="width:100%;">Créer le compte</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

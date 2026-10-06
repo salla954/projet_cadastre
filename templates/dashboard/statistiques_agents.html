@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titre %}Statistiques par agent — Cadastre &amp; Fiscalité Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <div>
+        <h1>Statistiques par agent</h1>
+        <p style="color:#6b7280; margin-top:.2rem;">Charge de travail en cours et délais moyens de traitement.</p>
+      </div>
+      <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Vue d'ensemble</a>
+    </div>
+
+    <div class="dash-grille" style="margin-bottom:2rem;">
+      <div class="dash-carte dash-carte-cadastre">
+        <span class="dash-carte-icone">📥</span>
+        <div class="valeur">{{ non_assignes.dossiers }}</div>
+        <div class="label">Dossiers non assignés</div>
+      </div>
+      <div class="dash-carte dash-carte-cadastre">
+        <span class="dash-carte-icone">📅</span>
+        <div class="valeur">{{ non_assignes.rendez_vous }}</div>
+        <div class="label">Rendez-vous non assignés</div>
+      </div>
+    </div>
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Spécialité</th>
+            <th>Dossiers en cours</th>
+            <th>RDV en cours</th>
+            <th>Dossiers traités</th>
+            <th>Délai moyen (dossiers)</th>
+            <th>RDV traités</th>
+            <th>Délai moyen (RDV)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+          <tr>
+            <td><strong>{{ ligne.agent.username }}</strong></td>
+            <td>{{ ligne.specialite }}</td>
+            <td>
+              {% if ligne.nb_dossiers_en_cours > 5 %}
+                <span class="badge badge-ocre">{{ ligne.nb_dossiers_en_cours }}</span>
+              {% else %}
+                {{ ligne.nb_dossiers_en_cours }}
+              {% endif %}
+            </td>
+            <td>{{ ligne.nb_rdv_en_cours }}</td>
+            <td>{{ ligne.nb_dossiers_traites }}</td>
+            <td>{% if ligne.delai_moyen_dossier_jours != None %}{{ ligne.delai_moyen_dossier_jours }} j{% else %}—{% endif %}</td>
+            <td>{{ ligne.nb_rdv_traites }}</td>
+            <td>{% if ligne.delai_moyen_rdv_jours != None %}{{ ligne.delai_moyen_rdv_jours }} j{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8">
+            <div class="etat-vide"><p>Aucun agent actif pour le moment.</p></div>
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.82rem; color:#9ca3af; margin-top:.8rem;">
+      Délai moyen = temps écoulé entre le dépôt (ou la demande) et le passage au statut final (Validé/Rejeté pour un
+      dossier, Honoré/Annulé pour un rendez-vous), pour les dossiers/rendez-vous déjà traités par l'agent.
+    </p>
+  </div>
+</section>
+{% endblock %}

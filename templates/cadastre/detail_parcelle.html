@@ -5,7 +5,12 @@
 <section class="section">
   <div class="conteneur" style="max-width:800px;">
     <a href="{% url 'cadastre:liste_parcelles' %}">← Retour aux parcelles</a>
-    <h1 class="mono">{{ parcelle.reference }}</h1>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem;">
+      <h1 class="mono">{{ parcelle.reference }}</h1>
+      <a href="{% url 'core:extrait_plan' parcelle.reference %}?telecharger=1" class="btn btn-primaire">
+        ⬇️ Générer l'extrait de plan
+      </a>
+    </div>
 
     <div class="carte" style="margin-bottom:1.2rem;">
       <div class="grille-2">
@@ -25,7 +30,26 @@
       </div>
     </div>
 
-    <h2>Historique de taxation</h2>
+    {% with nicad=parcelle.decoupage_nicad %}
+    {% if nicad %}
+    <div class="carte" style="margin-bottom:1.2rem; font-size:.9rem;">
+      <strong>Décomposition du NICAD</strong> (décret n° 2012-396 du 27 mars 2012) :
+      <div class="grille-2" style="margin-top:.5rem; gap:.3rem .8rem;">
+        <span>Région : <span class="mono">{{ nicad.region }}</span></span>
+        <span>Département : <span class="mono">{{ nicad.departement }}</span></span>
+        <span>Arrondissement : <span class="mono">{{ nicad.arrondissement }}</span></span>
+        <span>Commune : <span class="mono">{{ nicad.commune }}</span></span>
+        <span>Section cadastrale : <span class="mono">{{ nicad.section_cadastrale }}</span></span>
+        <span>N° de parcelle : <span class="mono">{{ nicad.numero_parcelle }}</span></span>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem;">
+      <h2 style="margin:0;">Historique de taxation</h2>
+      <a href="{% url 'fiscalite:emettre_taxe' parcelle.pk %}" class="btn btn-secondaire">➕ Émettre un avis de taxe</a>
+    </div>
     <div class="table-conteneur">
       <table>
         <thead><tr><th>Année</th><th>Montant dû</th><th>Payé</th><th>Solde</th><th>Statut</th></tr></thead>

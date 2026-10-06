@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Simulateur de taxe foncière — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Estimez la valeur vénale et la taxe foncière d'un terrain selon sa superficie et son usage.{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: none;">
+  <div class="conteneur">
+    <span class="hero-eyebrow">🧮 Outil pratique</span>
+    <h1>Simulateur de taxe foncière</h1>
+    <p class="lead">
+      Estimez la valeur vénale et la taxe foncière d'un terrain à partir de sa superficie et de son
+      usage — avant même de déposer une demande.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur" style="max-width:640px;">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alerte alerte-error">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem; margin-bottom:1.5rem;">
+      <form method="get">
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_superficie">Superficie (m²)</label>
+            <input type="number" name="superficie" id="id_superficie" min="1" step="1"
+                   value="{{ superficie_saisie }}" placeholder="Ex. 300" required>
+          </div>
+          <div class="champ">
+            <label for="id_usage">Usage prévu</label>
+            <select name="usage" id="id_usage" required>
+              <option value="">— Sélectionner —</option>
+              {% for valeur, libelle in usage_choices %}
+                <option value="{{ valeur }}" {% if valeur == usage_saisi %}selected{% endif %}>{{ libelle }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:.5rem;">Estimer</button>
+      </form>
+    </div>
+
+    {% if resultat %}
+      <div class="cartouche-formule" style="margin-bottom:1rem;">
+        <span>{{ resultat.superficie|floatformat:0 }} m²</span>
+        <span class="formule-signe">×</span>
+        <span>{{ resultat.usage_libelle }}</span>
+      </div>
+
+      <div class="cartouche-grille cartouche-grille-2">
+        <div class="cartouche" style="border-top-color:var(--bleu-nuit);">
+          <span class="cartouche-icone">🏷️</span>
+          <h4>Valeur vénale estimée</h4>
+          <p style="font-size:1.05rem; font-weight:700; color:var(--bleu-nuit);">
+            {{ resultat.valeur_min|floatformat:0|intcomma }} – {{ resultat.valeur_max|floatformat:0|intcomma }} FCFA
+          </p>
+          <p>Sur la base de {{ resultat.prix_m2|floatformat:0|intcomma }} FCFA/m² (prix indicatif par usage).</p>
+        </div>
+        <div class="cartouche" style="border-top-color:#C98A2C;">
+          <span class="cartouche-icone">💰</span>
+          <h4>Taxe foncière estimée / an</h4>
+          <p style="font-size:1.05rem; font-weight:700; color:var(--bleu-nuit);">
+            {{ resultat.taxe_min|floatformat:0|intcomma }} – {{ resultat.taxe_max|floatformat:0|intcomma }} FCFA
+          </p>
+          <p>Taux appliqué : {{ resultat.taux_pourcentage }} % de la valeur vénale.</p>
+        </div>
+      </div>
+
+      <div class="alerte alerte-info">
+        ℹ️ Cette estimation utilise les prix et taux indicatifs de cette plateforme de démonstration.
+        La valeur réelle d'un terrain dépend aussi de son emplacement précis, de sa forme et de son
+        niveau de viabilisation — seul un avis de taxe émis par le service du cadastre fait foi.
+      </div>
+    {% endif %}
+
+    <p style="margin-top:1.5rem; font-size:.9rem;">
+      <a href="{% url 'core:guide_cadastre' %}" class="voir-tout">En savoir plus sur le calcul de la taxe foncière →</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

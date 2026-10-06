@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titre %}{% if creation %}Nouvelle actualité{% else %}Modifier l'actualité{% endif %} — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:680px;">
+    <div class="section-titre">
+      <h1>{% if creation %}Nouvelle actualité{% else %}Modifier l'actualité{% endif %}</h1>
+      <a href="{% url 'core:gestion_actualites' %}" class="voir-tout">← Toutes les actualités</a>
+    </div>
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="champ">
+          <label for="id_titre">Titre</label>
+          {{ form.titre }}
+          {% for erreur in form.titre.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_chapo">Chapô (résumé court)</label>
+          {{ form.chapo }}
+          {% for erreur in form.chapo.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_contenu">Contenu</label>
+          {{ form.contenu }}
+          {% for erreur in form.contenu.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_date_publication">Date de publication</label>
+            {{ form.date_publication }}
+            {% for erreur in form.date_publication.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="id_source_url">Lien source (facultatif)</label>
+            {{ form.source_url }}
+          </div>
+        </div>
+
+        <div class="champ" style="display:flex; align-items:center; gap:.5rem;">
+          {{ form.publie }}
+          <label for="id_publie" style="margin:0;">Publiée (visible sur le site public)</label>
+        </div>
+
+        <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:.5rem;">
+          {% if creation %}Créer l'actualité{% else %}Enregistrer les modifications{% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block titre %}Services utiles — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Coordonnées des centres des services fiscaux et du bureau du cadastre de la région de Thiès.{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: none;">
+  <div class="conteneur">
+    <span class="hero-eyebrow">📞 Annuaire</span>
+    <h1>Services utiles</h1>
+    <p class="lead">
+      Les coordonnées des services de la Direction Générale des Impôts et des Domaines (DGID) pour
+      la région de Thiès, et le centre d'appel national.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur" style="max-width:900px;">
+
+    <div class="alerte alerte-info">
+      📞 <strong>Centre d'appel national DGID : 81 800 11 11</strong> — pour toute question sur vos
+      démarches fiscales ou foncières, où que vous soyez au Sénégal.
+    </div>
+
+    <div class="section-titre" style="margin-top:2rem;">
+      <h2>🏢 Centres des services fiscaux (CSF) — région de Thiès</h2>
+    </div>
+    <div class="cartouche-grille cartouche-grille-2">
+      <div class="cartouche" style="border-top-color:var(--bleu-nuit);">
+        <span class="cartouche-icone">📍</span>
+        <h4>CSF de Thiès</h4>
+        <p>Place de France, BP 160<br>
+        ☎️ <a href="tel:+221339511518">33 951 15 18</a> · Fax : 33 951 43 06</p>
+      </div>
+      <div class="cartouche" style="border-top-color:var(--bleu-nuit);">
+        <span class="cartouche-icone">📍</span>
+        <h4>CSF de Mbour</h4>
+        <p>Route de Dakar (château d'eau nord, gare routière), BP 1659<br>
+        ☎️ <a href="tel:+221339395290">33 939 52 90</a> · Fax : 33 939 52 91</p>
+      </div>
+      <div class="cartouche" style="border-top-color:var(--bleu-nuit);">
+        <span class="cartouche-icone">📍</span>
+        <h4>CSF de Tivaouane</h4>
+        <p>Compétent sur le département de Tivaouane. Centre récemment ouvert dans le cadre du
+        programme de rénovation de la DGID (PRESID, 2024).</p>
+      </div>
+      <div class="cartouche" style="border-top-color:var(--bleu-nuit);">
+        <span class="cartouche-icone">🏛️</span>
+        <h4>Direction Générale des Impôts et des Domaines</h4>
+        <p>31, rue de Thiong (angle rue Vincens), Dakar<br>
+        ☎️ <a href="tel:+221338892002">33 889 20 02</a></p>
+      </div>
+    </div>
+
+    <div class="section-titre" style="margin-top:2rem;">
+      <h2>💻 Démarches en ligne</h2>
+    </div>
+    <div class="cartouche-grille cartouche-grille-3">
+      <div class="cartouche" style="border-top-color:#C98A2C;">
+        <span class="cartouche-icone">💻</span>
+        <h4>Mon Espace Perso</h4>
+        <p>Dossier fiscal en ligne pour les particuliers et petites entreprises.</p>
+      </div>
+      <div class="cartouche" style="border-top-color:#C98A2C;">
+        <span class="cartouche-icone">🔄</span>
+        <h4>ETAX / SENTAX</h4>
+        <p>Télédéclaration et télépaiement des impôts et taxes.</p>
+      </div>
+      <div class="cartouche" style="border-top-color:#C98A2C;">
+        <span class="cartouche-icone">📑</span>
+        <h4>DGID-digitale</h4>
+        <p>Quitus fiscal, attestations d'imposition en ligne.</p>
+      </div>
+    </div>
+
+    <div class="cta-bandeau" style="margin-top:2rem;">
+      <div>
+        <h2>Une démarche à faire ?</h2>
+        <p>Déposez votre dossier en ligne plutôt que de vous déplacer.</p>
+      </div>
+      <a href="{% url 'demarches:deposer' %}" class="btn btn-primaire">Déposer un dossier</a>
+    </div>
+
+    <p style="font-size:.8rem; color:#8a8f9a; margin-top:1.5rem;">
+      Coordonnées vérifiées auprès de sources officielles (dgid.sn, senegalservices.sn) au moment de
+      la rédaction. En cas de doute, privilégiez le centre d'appel national.
+    </p>
+  </div>
+</section>
+{% endblock %}

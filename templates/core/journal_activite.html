@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block titre %}Journal d'activité — Back-office{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Journal d'activité</h1>
+      <a href="{% url 'appcadastre:liste_utilisateurs' %}" class="voir-tout">← Utilisateurs</a>
+    </div>
+    <p style="color:#4b5262; margin-top:-1rem; margin-bottom:1.5rem;">
+      Historique des actions importantes effectuées par les agents (émission de taxe, paiement,
+      traitement d'un dossier ou d'un rendez-vous).
+    </p>
+
+    <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
+      <div class="champ">
+        <label for="id-filtre-agent">Agent</label>
+        <select name="agent" id="id-filtre-agent">
+          <option value="">Tous</option>
+          {% for a in agents %}
+            <option value="{{ a.pk }}" {% if agent_selectionne == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.get_username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-contour-sombre">Filtrer</button>
+    </form>
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Agent</th><th>Action</th><th>Détails</th></tr>
+        </thead>
+        <tbody>
+          {% for entree in page_obj %}
+            <tr>
+              <td style="white-space:nowrap; font-size:.85rem;">{{ entree.date_action|date:"d/m/Y H:i" }}</td>
+              <td>{{ entree.agent.get_username|default:"—" }}</td>
+              <td>{{ entree.action }}</td>
+              <td style="color:#6b7280; font-size:.88rem;">{{ entree.details }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4">Aucune activité enregistrée pour le moment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">← Précédent</a>{% endif %}
+      <span class="actif">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Suivant →</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

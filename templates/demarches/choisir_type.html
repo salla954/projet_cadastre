@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titre %}Déposer un dossier — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:900px;">
+    <div class="section-titre">
+      <h1>Déposer un dossier</h1>
+      <a href="{% url 'demarches:suivre' %}" class="voir-tout">Suivre un dossier existant →</a>
+    </div>
+    <p style="color:#4b5262; margin-bottom:2rem;">
+      Choisissez d'abord la nature de votre demande : le formulaire qui s'affichera ensuite
+      sera adapté au type précis que vous aurez sélectionné.
+      Pas sûr(e) de quoi il s'agit ? <a href="{% url 'demarches:assistant' %}">Laissez-vous guider →</a>
+    </p>
+
+    {% for nom_famille, options in type_choices %}
+      <div class="rubrique-demande">
+        <h2 class="rubrique-demande-titre">
+          {% if nom_famille == "Cadastre" %}
+            <span class="badge badge-vert">🧭 {{ nom_famille }}</span>
+          {% else %}
+            <span class="badge badge-ocre">💰 {{ nom_famille }}</span>
+          {% endif %}
+        </h2>
+        <div class="rubrique-demande-grille">
+          {% for valeur, libelle in options %}
+            <a href="{% url 'demarches:deposer_type' valeur %}" class="carte-type-demande">
+              <span>{{ libelle }}</span>
+              <span class="carte-type-demande-fleche">→</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+  .rubrique-demande{ margin-bottom: 2.2rem; }
+  .rubrique-demande-titre{ margin-bottom: 1rem; }
+  .rubrique-demande-titre .badge{ font-size: .95rem; padding: .4rem .9rem; }
+  .rubrique-demande-grille{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:.8rem;
+  }
+  .carte-type-demande{
+    display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+    background:var(--blanc); border:1px solid var(--sable-fonce); border-radius:var(--radius);
+    padding:1rem 1.2rem; color:var(--bleu-nuit); font-weight:600; text-decoration:none;
+    box-shadow:var(--ombre); transition:transform .15s ease, border-color .15s ease;
+  }
+  .carte-type-demande:hover{ transform:translateY(-2px); border-color:var(--ocre); color:var(--bleu-nuit); }
+  .carte-type-demande-fleche{ color:var(--ocre); font-weight:700; flex-shrink:0; }
+
+  @media (max-width:640px){
+    .rubrique-demande-grille{ grid-template-columns:1fr; }
+  }
+</style>
+{% endblock %}

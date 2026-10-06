@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block titre %}{{ dossier.reference_suivi }} — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:760px;">
+    <div class="section-titre">
+      <h1 style="font-family:var(--font-mono); font-size:1.4rem;">{{ dossier.reference_suivi }}</h1>
+      <a href="{% url 'demarches:liste_dossiers' %}" class="voir-tout">← Tous les dossiers</a>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alerte alerte-success">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem; margin-bottom:1.5rem;">
+      <h3 style="margin-top:0;">
+        {{ dossier.get_type_dossier_display }}
+        {% if dossier.famille == "Cadastre" %}
+          <span class="badge badge-vert" style="margin-left:.5rem;">Cadastre</span>
+        {% else %}
+          <span class="badge badge-ocre" style="margin-left:.5rem;">Fiscalité</span>
+        {% endif %}
+      </h3>
+      <div class="grille-2">
+        <p><strong>Demandeur :</strong> {{ dossier.nom_demandeur }}</p>
+        <p><strong>Téléphone :</strong> {{ dossier.telephone_demandeur }}</p>
+        <p><strong>E-mail :</strong> {{ dossier.email_demandeur|default:"—" }}</p>
+        <p><strong>Déposé le :</strong> {{ dossier.date_depot|date:"d F Y à H:i" }}</p>
+      </div>
+      <p>
+        <strong>Parcelle / localisation :</strong>
+        {% if dossier.parcelle %}
+          <a href="{% url 'core:consultation_publique' %}?reference={{ dossier.parcelle.reference }}">{{ dossier.parcelle.reference }}</a>
+        {% else %}
+          {{ dossier.localisation_saisie|default:"Non précisé" }}
+        {% endif %}
+      </p>
+      <p><strong>Description :</strong></p>
+      <p style="color:#4b5262;">{{ dossier.description|linebreaks }}</p>
+
+      {% if dossier.pieces_jointes.all %}
+        <p><strong>Pièces jointes :</strong></p>
+        <ul>
+          {% for piece in dossier.pieces_jointes.all %}
+            <li><a href="{{ piece.fichier.url }}" target="_blank" rel="noopener noreferrer">{{ piece.nom_fichier }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p style="color:#9ca3af;">Aucune pièce jointe.</p>
+      {% endif %}
+
+      {% if dossier.agent_traitant %}
+        <p style="font-size:.85rem; color:#6b7280;">Agent actuellement assigné : <strong>{{ dossier.agent_traitant.get_username }}</strong></p>
+      {% endif %}
+    </div>
+
+    {% if dossier.parcelle %}
+      <div class="alerte alerte-success" style="margin-bottom:1.5rem;">
+        Ce dossier est déjà lié à la parcelle <strong>{{ dossier.parcelle.reference }}</strong> — c'est cette
+        référence que l'usager doit utiliser pour consulter sa parcelle. Communiquez-la à l'agent en charge si besoin.
+      </div>
+    {% elif peut_creer_parcelle %}
+      <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem; margin-bottom:1.5rem;">
+        <h3 style="margin-top:0;">Valider et immatriculer la parcelle</h3>
+        <p style="color:#4b5262; font-size:.9rem;">
+          En complétant ce formulaire, une nouvelle parcelle est créée avec sa propre référence
+          cadastrale, automatiquement liée à ce dossier. Cette référence sera visible par l'usager sur
+          sa page de suivi et deviendra consultable normalement depuis la plateforme.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="creer_parcelle">
+          <div class="grille-2">
+            <div class="champ">
+              <label for="id_commune">Commune</label>
+              {{ form_parcelle.commune }}
+            </div>
+            <div class="champ">
+              <label for="id_quartier">Quartier</label>
+              {{ form_parcelle.quartier }}
+            </div>
+          </div>
+          <div class="grille-2">
+            <div class="champ">
+              <label for="id_superficie_m2">Superficie (m²)</label>
+              {{ form_parcelle.superficie_m2 }}
+            </div>
+            <div class="champ">
+              <label for="id_usage">Usage</label>
+              {{ form_parcelle.usage }}
+            </div>
+          </div>
+          <div class="champ">
+            <label for="id_valeur_venale_fcfa">Valeur vénale estimée (FCFA)</label>
+            {{ form_parcelle.valeur_venale_fcfa }}
+          </div>
+          <button type="submit" class="btn btn-primaire">Créer la parcelle et valider le dossier</button>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem;">
+      <h3 style="margin-top:0;">Traitement du dossier</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="id_statut">Statut</label>
+          {{ form.statut }}
+        </div>
+        <div class="champ">
+          <label for="id_agent_traitant">Agent assigné</label>
+          {{ form.agent_traitant }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">{{ form.agent_traitant.help_text }}</p>
+        </div>
+        <div class="champ">
+          <label for="id_commentaire_agent">Commentaire (visible par le demandeur lors du suivi)</label>
+          {{ form.commentaire_agent }}
+        </div>
+        <button type="submit" class="btn btn-primaire">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

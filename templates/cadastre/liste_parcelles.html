@@ -6,7 +6,10 @@
   <div class="conteneur">
     <div class="section-titre">
       <h1>Parcelles</h1>
-      <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Tableau de bord</a>
+      <div style="display:flex; gap:.8rem; align-items:center;">
+        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}export=csv" class="btn btn-contour-sombre">⬇️ Exporter CSV</a>
+        <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Tableau de bord</a>
+      </div>
     </div>
 
     <form method="get" class="form-inline" style="margin-bottom:1.5rem;">

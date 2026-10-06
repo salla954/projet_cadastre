@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titre %}{{ titre_page }} — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:520px;">
+    <h1>{{ titre_page }}</h1>
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem;">
+      <p style="color:#4b5262;">
+        Vous êtes sur le point de supprimer définitivement :
+        <strong>{{ objet }}</strong>. Cette action est irréversible.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="hero-actions">
+          <button type="submit" class="btn btn-primaire" style="background:var(--danger, #B3452C); color:var(--blanc);">Confirmer la suppression</button>
+          <a href="{% url url_annuler %}" class="btn btn-contour-sombre">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

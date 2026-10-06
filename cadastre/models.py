@@ -86,6 +86,17 @@ class Parcelle(models.Model):
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default="NON_IMMATRICULEE")
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    contour_carte = models.JSONField(
+        "Contour réel (WGS84) pour la carte interactive", blank=True, null=True,
+        help_text=(
+            "Liste de points [latitude, longitude] du contour extérieur réel de la "
+            "parcelle, en coordonnées géographiques (WGS84), utilisée pour dessiner "
+            "un vrai polygone sur la carte interactive plutôt qu'un simple point. "
+            "Renseigné uniquement pour les parcelles importées depuis une géométrie "
+            "réelle (voir la commande importer_bd_zone_nguinth) ; laisser vide pour "
+            "les parcelles fictives, qui restent affichées par un point."
+        ),
+    )
     date_creation = models.DateField(auto_now_add=True)
 
     class Meta:
@@ -98,6 +109,37 @@ class Parcelle(models.Model):
 
     def get_absolute_url(self):
         return reverse("cadastre:parcelle_detail", args=[self.pk])
+
+    @property
+    def decoupage_nicad(self):
+        """Décompose la référence en ses six composantes officielles si elle
+        suit le format du NICAD (16 chiffres) défini par l'article 3 du
+        décret n° 2012-396 du 27 mars 2012 : RR DD AA CC SSS PPPPP.
+
+        - RR (2) : région
+        - DD (2) : département
+        - AA (2) : arrondissement
+        - CC (2) : commune, commune d'arrondissement ou communauté rurale
+        - SSS (3) : section cadastrale
+        - PPPPP (5) : numéro de la parcelle dans cette section
+
+        Renvoie None si la référence ne suit pas ce format (les références
+        fictives type "TH-2024-00147" des données de démonstration, ou un
+        simple numéro de lot) : cette décomposition ne s'applique qu'aux
+        parcelles dotées d'un vrai NICAD, comme celles importées depuis la
+        zone de Nguinth.
+        """
+        ref = self.reference
+        if not (len(ref) == 16 and ref.isdigit()):
+            return None
+        return {
+            "region": ref[0:2],
+            "departement": ref[2:4],
+            "arrondissement": ref[4:6],
+            "commune": ref[6:8],
+            "section_cadastrale": ref[8:11],
+            "numero_parcelle": ref[11:16],
+        }
 
 
 class PointBornage(models.Model):
@@ -136,3 +178,24 @@ class PointBornage(models.Model):
 
     def __str__(self):
         return f"{self.label or f'Point {self.ordre}'} — {self.parcelle.reference}"
+
+
+class ExtraitPlanGenere(models.Model):
+    """Trace chaque génération d'un extrait de plan cadastral (PDF).
+
+    Ne stocke pas le fichier lui-même (généré à la volée à chaque demande),
+    seulement l'événement, afin de permettre un suivi statistique du nombre
+    d'extraits délivrés (voir le tableau de bord)."""
+
+    parcelle = models.ForeignKey(
+        Parcelle, on_delete=models.CASCADE, related_name="extraits_generes"
+    )
+    date_generation = models.DateTimeField("Date de génération", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Extrait de plan généré"
+        verbose_name_plural = "Extraits de plan générés"
+        ordering = ["-date_generation"]
+
+    def __str__(self):
+        return f"Extrait {self.parcelle.reference} — {self.date_generation:%d/%m/%Y %H:%M}"

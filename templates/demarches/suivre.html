@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titre %}Suivre un dossier — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:640px;">
+    <div class="section-titre">
+      <h1>Suivre un dossier</h1>
+      <a href="{% url 'demarches:deposer' %}" class="voir-tout">Déposer un dossier →</a>
+    </div>
+    <p style="color:#4b5262; margin-bottom:1.5rem;">
+      Saisissez la référence de suivi qui vous a été communiquée lors du dépôt de votre dossier.
+    </p>
+
+    <form method="post" class="form-inline" style="margin-bottom:2rem; gap:.8rem;">
+      {% csrf_token %}
+      <div class="champ" style="flex-grow:1;">
+        {{ form.reference_suivi }}
+      </div>
+      <button type="submit" class="btn btn-primaire">Rechercher</button>
+    </form>
+
+    {% if erreur %}
+      <div class="alerte alerte-error">{{ erreur }}</div>
+    {% endif %}
+
+    {% if dossier %}
+      <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;">
+          <span style="font-family:var(--font-mono); font-size:.85rem; color:#6b7280;">{{ dossier.reference_suivi }}</span>
+          {% if dossier.statut == "VALIDE" %}
+            <span class="badge badge-vert">{{ dossier.get_statut_display }}</span>
+          {% elif dossier.statut == "REJETE" %}
+            <span class="badge badge-rouge">{{ dossier.get_statut_display }}</span>
+          {% elif dossier.statut == "EN_COURS" %}
+            <span class="badge badge-ocre">{{ dossier.get_statut_display }}</span>
+          {% else %}
+            <span class="badge badge-gris">{{ dossier.get_statut_display }}</span>
+          {% endif %}
+        </div>
+
+        <h3 style="margin:.8rem 0 .3rem;">{{ dossier.get_type_dossier_display }}</h3>
+        <p style="color:#4b5262; margin:0 0 1rem;">
+          {% if dossier.parcelle %}Parcelle {{ dossier.parcelle.reference }}{% else %}{{ dossier.localisation_saisie }}{% endif %}
+          · déposé le {{ dossier.date_depot|date:"d F Y" }}
+        </p>
+
+        <p style="color:#4b5262;">{{ dossier.description|linebreaks }}</p>
+
+        {% if dossier.pieces_jointes.all %}
+          <p style="font-size:.88rem; color:#6b7280; margin-top:1rem;">
+            {{ dossier.pieces_jointes.count }} pièce(s) jointe(s) au dossier.
+          </p>
+        {% endif %}
+
+        {% if dossier.commentaire_agent %}
+          <div class="alerte alerte-info" style="margin-top:1rem;">
+            <strong>Message du service instructeur :</strong><br>
+            {{ dossier.commentaire_agent|linebreaks }}
+          </div>
+        {% endif %}
+
+        <p style="font-size:.8rem; color:#9ca3af; margin-top:1rem; margin-bottom:0;">
+          Dernière mise à jour le {{ dossier.date_maj|date:"d F Y à H:i" }}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

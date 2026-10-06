@@ -21,6 +21,16 @@
           <label for="id_role">Rôle</label>
           {{ form.role }}
         </div>
+        <div class="champ">
+          <label for="id_specialite">Spécialité / mission</label>
+          {{ form.specialite }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">Domaine principal de responsabilité de cet agent (facultatif).</p>
+        </div>
+        <div class="champ">
+          <label for="id_communes_attribuees">Communes attribuées</label>
+          {{ form.communes_attribuees }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">Laisser vide pour ne restreindre à aucune commune en particulier (Ctrl/Cmd + clic pour sélectionner plusieurs communes).</p>
+        </div>
         <div class="champ" style="display:flex; align-items:center; gap:.5rem;">
           {{ form.actif }}
           <label for="id_actif" style="margin:0;">Compte actif</label>

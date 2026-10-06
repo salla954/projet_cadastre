@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block titre %}Quelle démarche me faut-il ? — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Répondez à quelques questions pour être orienté vers la bonne démarche à déposer.{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: none;">
+  <div class="conteneur">
+    <span class="hero-eyebrow">🧭 Assistant</span>
+    <h1>Quelle démarche me faut-il ?</h1>
+    <p class="lead">
+      Répondez à quelques questions simples : on vous oriente directement vers le bon formulaire,
+      parmi les 14 démarches possibles.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur" style="max-width:640px;">
+
+    <div id="assistant-progression" style="margin-bottom:1rem; font-size:.85rem; color:#8a8f9a;"></div>
+
+    <div id="assistant-question" class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;"></div>
+
+    <div id="assistant-resultat" style="display:none;">
+      <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem; text-align:center;">
+        <span id="resultat-badge" class="badge" style="margin-bottom:1rem; display:inline-block;"></span>
+        <h2 id="resultat-titre" style="margin:.3rem 0 1.5rem;"></h2>
+        <a id="resultat-lien" href="#" class="btn btn-primaire" style="display:inline-block;">Déposer cette demande →</a>
+      </div>
+      <p style="text-align:center; margin-top:1.2rem;">
+        <a href="#" id="assistant-recommencer" class="voir-tout">🔁 Ce n'est pas ça, recommencer</a>
+        · <a href="{% url 'demarches:deposer' %}" class="voir-tout">Voir les 14 démarches →</a>
+      </p>
+    </div>
+
+    <p id="assistant-retour-conteneur" style="margin-top:1.2rem; display:none;">
+      <a href="#" id="assistant-retour" class="voir-tout">← Question précédente</a>
+    </p>
+  </div>
+</section>
+
+<script>
+(function () {
+  var URLS_PAR_TYPE = {
+    {% for valeur, libelle in tous_les_types %}
+    "{{ valeur }}": "{% url 'demarches:deposer_type' valeur %}",
+    {% endfor %}
+  };
+  var LIBELLES_PAR_TYPE = {
+    {% for valeur, libelle in tous_les_types %}
+    "{{ valeur }}": "{{ libelle|escapejs }}",
+    {% endfor %}
+  };
+  var FAMILLE_CADASTRE = ["IMMATRICULATION", "PLAN_SITUATION", "EXTRAIT_CADASTRAL", "RENSEIGNEMENT_PARCELLE", "BORNAGE", "MORCELLEMENT", "FUSION", "MISE_A_JOUR_CADASTRALE"];
+
+  var ARBRE = {
+    debut: {
+      question: "Quelle est la nature de votre demande ?",
+      options: [
+        { texte: "🧭 Cadastre — terrain, parcelle, plan…", suivant: "cadastre_existe" },
+        { texte: "💰 Fiscalité — impôt, taxe foncière…", suivant: "fiscalite_but" }
+      ]
+    },
+    cadastre_existe: {
+      question: "Le terrain concerné a-t-il déjà une référence cadastrale (NICAD) ?",
+      options: [
+        { texte: "Non, c'est un nouveau terrain à immatriculer", type: "IMMATRICULATION" },
+        { texte: "Oui, il est déjà enregistré", suivant: "cadastre_but" }
+      ]
+    },
+    cadastre_but: {
+      question: "Que souhaitez-vous faire sur cette parcelle ?",
+      options: [
+        { texte: "Obtenir un document (plan, extrait, renseignements)", suivant: "cadastre_document" },
+        { texte: "Diviser, fusionner ou mettre à jour la parcelle", suivant: "cadastre_modification" },
+        { texte: "Signaler un désaccord sur les limites", type: "BORNAGE" }
+      ]
+    },
+    cadastre_document: {
+      question: "Quel document recherchez-vous ?",
+      options: [
+        { texte: "Un plan de situation", type: "PLAN_SITUATION" },
+        { texte: "Un extrait cadastral", type: "EXTRAIT_CADASTRAL" },
+        { texte: "Des renseignements généraux (propriétaire, statut…)", type: "RENSEIGNEMENT_PARCELLE" }
+      ]
+    },
+    cadastre_modification: {
+      question: "Laquelle de ces démarches correspond à votre besoin ?",
+      options: [
+        { texte: "Diviser la parcelle en plusieurs lots", type: "MORCELLEMENT" },
+        { texte: "Fusionner avec une parcelle voisine", type: "FUSION" },
+        { texte: "Signaler un changement (construction, démolition…)", type: "MISE_A_JOUR_CADASTRALE" }
+      ]
+    },
+    fiscalite_but: {
+      question: "Que souhaitez-vous faire ?",
+      options: [
+        { texte: "Connaître ma situation ou les montants dus", suivant: "fiscalite_connaitre" },
+        { texte: "Payer ou retrouver une quittance", type: "PAIEMENT_QUITTANCE" },
+        { texte: "Signaler une erreur ou demander un délai", suivant: "fiscalite_probleme" },
+        { texte: "Obtenir une attestation fiscale", type: "ATTESTATION_FISCALE" }
+      ]
+    },
+    fiscalite_connaitre: {
+      question: "Précisément ?",
+      options: [
+        { texte: "Ma situation fiscale détaillée", type: "SITUATION_FISCALE" },
+        { texte: "Le montant de mes impôts dus", type: "CONSULTATION_IMPOTS_DUS" }
+      ]
+    },
+    fiscalite_probleme: {
+      question: "Précisément ?",
+      options: [
+        { texte: "Signaler une erreur sur mon avis de taxe", type: "RECLAMATION_FISCALE" },
+        { texte: "Demander un délai ou un échéancier de paiement", type: "REGULARISATION_FISCALE" }
+      ]
+    }
+  };
+
+  var pile = ["debut"];
+
+  var elQuestion = document.getElementById("assistant-question");
+  var elResultat = document.getElementById("assistant-resultat");
+  var elProgression = document.getElementById("assistant-progression");
+  var elRetourConteneur = document.getElementById("assistant-retour-conteneur");
+
+  function afficherNoeud(cle) {
+    var noeud = ARBRE[cle];
+    elResultat.style.display = "none";
+    elQuestion.style.display = "block";
+    elProgression.textContent = "Question " + pile.length + " sur 4 environ";
+    elRetourConteneur.style.display = pile.length > 1 ? "block" : "none";
+
+    var html = '<h3 style="margin-top:0;">' + noeud.question + '</h3>';
+    html += '<div style="display:flex; flex-direction:column; gap:.7rem; margin-top:1rem;">';
+    noeud.options.forEach(function (option, indice) {
+      html += '<button type="button" class="option-assistant" data-indice="' + indice + '">' +
+        '<span>' + option.texte + '</span><span class="option-assistant-fleche">→</span></button>';
+    });
+    html += '</div>';
+    elQuestion.innerHTML = html;
+
+    elQuestion.querySelectorAll(".option-assistant").forEach(function (bouton) {
+      bouton.addEventListener("click", function () {
+        var option = noeud.options[parseInt(bouton.dataset.indice, 10)];
+        if (option.type) {
+          afficherResultat(option.type);
+        } else {
+          pile.push(option.suivant);
+          afficherNoeud(option.suivant);
+        }
+      });
+    });
+  }
+
+  function afficherResultat(type) {
+    elQuestion.style.display = "none";
+    elProgression.textContent = "";
+    elRetourConteneur.style.display = "block";
+    elResultat.style.display = "block";
+
+    var estCadastre = FAMILLE_CADASTRE.indexOf(type) !== -1;
+    var badge = document.getElementById("resultat-badge");
+    badge.textContent = estCadastre ? "Cadastre" : "Fiscalité";
+    badge.className = "badge " + (estCadastre ? "badge-vert" : "badge-ocre");
+    document.getElementById("resultat-titre").textContent = LIBELLES_PAR_TYPE[type];
+    document.getElementById("resultat-lien").href = URLS_PAR_TYPE[type];
+  }
+
+  document.getElementById("assistant-retour").addEventListener("click", function (e) {
+    e.preventDefault();
+    if (pile.length > 1) pile.pop();
+    afficherNoeud(pile[pile.length - 1]);
+  });
+
+  document.getElementById("assistant-recommencer").addEventListener("click", function (e) {
+    e.preventDefault();
+    pile = ["debut"];
+    afficherNoeud("debut");
+  });
+
+  afficherNoeud("debut");
+})();
+</script>
+
+<style>
+  .option-assistant{
+    display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+    background:var(--sable); border:1px solid var(--sable-fonce); border-radius:var(--radius);
+    padding:.9rem 1.1rem; font-family:inherit; font-size:.95rem; font-weight:600;
+    color:var(--bleu-nuit); cursor:pointer; text-align:left; transition:border-color .15s ease, background .15s ease;
+  }
+  .option-assistant:hover{ background:#fff; border-color:var(--ocre); }
+  .option-assistant-fleche{ color:var(--ocre); flex-shrink:0; }
+</style>
+{% endblock %}

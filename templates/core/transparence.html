@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Chiffres publics — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Chiffres agrégés et anonymisés sur le cadastre et la fiscalité foncière de la région de Thiès.{% endblock %}
+{% block extra_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: none;">
+  <div class="conteneur">
+    <span class="hero-eyebrow">📊 Portail de transparence</span>
+    <h1>Chiffres publics</h1>
+    <p class="lead">
+      Des données agrégées et anonymisées sur le cadastre et la fiscalité foncière de la région de
+      Thiès — aucune information individuelle (ni nom de propriétaire, ni dossier personnel).
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="dash-grille">
+      <div class="dash-carte" style="border-top-color:var(--vert-baobab);">
+        <span class="dash-carte-icone">🗺️</span>
+        <div class="valeur">{{ chiffres.nb_parcelles }}</div>
+        <div class="label">Parcelles recensées</div>
+      </div>
+      <div class="dash-carte" style="border-top-color:var(--vert-baobab);">
+        <span class="dash-carte-icone">✅</span>
+        <div class="valeur">{{ chiffres.nb_immatriculees }}</div>
+        <div class="label">Parcelles immatriculées</div>
+      </div>
+      <div class="dash-carte" style="border-top-color:var(--vert-baobab);">
+        <span class="dash-carte-icone">📍</span>
+        <div class="valeur">{{ chiffres.nb_communes }}</div>
+        <div class="label">Communes couvertes</div>
+      </div>
+      <div class="dash-carte" style="border-top-color:#C98A2C;">
+        <span class="dash-carte-icone">📐</span>
+        <div class="valeur">{{ chiffres.superficie_totale|floatformat:0|intcomma }} m²</div>
+        <div class="label">Superficie totale recensée</div>
+      </div>
+      <div class="dash-carte" style="border-top-color:#C98A2C; grid-column:span 2;">
+        <span class="dash-carte-icone">💰</span>
+        <div class="valeur">{{ chiffres.montant_total_du|floatformat:0|intcomma }} FCFA</div>
+        <div class="label">Taxe foncière émise (cumulé, toutes années)</div>
+      </div>
+    </div>
+
+    <div class="grille-2">
+      <div class="graph-conteneur">
+        <h3>🏗️ Parcelles par usage</h3>
+        <canvas id="graphUsage" height="220"></canvas>
+      </div>
+      <div class="graph-conteneur">
+        <h3>💰 Recouvrement fiscal par année</h3>
+        <canvas id="graphAnnee" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="section-titre" style="margin-top:1rem;">
+      <h2>🏘️ Parcelles par commune</h2>
+      <a href="{% url 'core:comparateur_communes' %}" class="voir-tout">Comparer les communes →</a>
+    </div>
+    <div class="table-conteneur">
+      <table>
+        <thead><tr><th>Commune</th><th>Nb. parcelles</th><th>Superficie cumulée</th></tr></thead>
+        <tbody>
+          {% for c in par_commune %}
+          <tr>
+            <td>{{ c.commune__nom }}</td>
+            <td>{{ c.nb_parcelles }}</td>
+            <td>{{ c.superficie|floatformat:0|intcomma }} m²</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:.82rem; color:#8a8f9a; margin-top:1.2rem;">
+      Données de démonstration à but pédagogique. Aucune donnée personnelle (nom de propriétaire,
+      dossier déposé) n'apparaît sur cette page.
+    </p>
+  </div>
+</section>
+
+<script>
+const donneesUsage = {{ json_usage|safe }};
+new Chart(document.getElementById('graphUsage'), {
+  type: 'bar',
+  data: {
+    labels: donneesUsage.map(d => d.usage_libelle),
+    datasets: [{ label: 'Parcelles', data: donneesUsage.map(d => d.total), backgroundColor: '#1B2A4A' }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+
+const donneesAnnee = {{ json_annee|safe }};
+new Chart(document.getElementById('graphAnnee'), {
+  type: 'bar',
+  data: {
+    labels: donneesAnnee.map(d => d.annee),
+    datasets: [
+      { label: 'Montant dû (FCFA)', data: donneesAnnee.map(d => d.total_du), backgroundColor: '#C98A2C' },
+      { label: 'Montant payé (FCFA)', data: donneesAnnee.map(d => d.total_paye), backgroundColor: '#3A6B4C' }
+    ]
+  },
+  options: { scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

@@ -8,6 +8,7 @@
       {% for a in actualites %}
         <a href="{% url 'core:detail_actualite' a.pk %}" class="carte">
           <span class="date">{{ a.date_publication|date:"d M Y" }}</span>
+          {% if a.source_url %}<span class="badge-vert" style="font-size:.68rem; padding:.15rem .55rem; border-radius:100px; margin-left:.5rem;">Source vérifiée</span>{% endif %}
           <h3>{{ a.titre }}</h3>
           <p>{{ a.chapo }}</p>
         </a>

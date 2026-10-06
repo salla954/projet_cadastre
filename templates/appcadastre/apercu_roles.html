@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block titre %}Rôles &amp; permissions{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <div>
+        <h1>Rôles &amp; permissions</h1>
+        <p style="color:#6b7280; margin-top:.2rem;">Ce que chaque rôle permet de faire, et qui en dispose.</p>
+      </div>
+      <a href="{% url 'appcadastre:liste_utilisateurs' %}" class="voir-tout">Gérer les comptes →</a>
+    </div>
+
+    <div class="grille-3">
+      {% for role in roles %}
+      <div class="carte">
+        <h3>
+          <span aria-hidden="true">{{ role.icone }}</span>
+          {{ role.libelle }}
+          <span class="badge {{ role.badge }}">
+            {% if role.code == "VISITEUR" %}accès public{% else %}{{ role.nb_actifs }} compte{{ role.nb_actifs|pluralize }} actif{{ role.nb_actifs|pluralize }}{% endif %}
+          </span>
+        </h3>
+        <p style="color:#4b5262; font-size:.92rem;">{{ role.description }}</p>
+        <p style="font-size:.8rem; font-weight:600; color:#6b7280; margin:1rem 0 .4rem; text-transform:uppercase; letter-spacing:.03em;">Accès</p>
+        <ul style="margin:0; padding-left:1.1rem; font-size:.88rem; color:#4b5262; line-height:1.6;">
+          {% for item in role.acces %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% for role in roles %}
+      {% if role.code != "VISITEUR" %}
+      <div class="section-titre" style="margin-top:2.6rem;">
+        <h2 style="font-size:1.15rem;">
+          <span class="badge {{ role.badge }}">{{ role.icone }} {{ role.libelle }}</span>
+          <span style="font-weight:400; color:#6b7280; font-size:.85rem; margin-left:.5rem;">{{ role.nb_comptes }} compte{{ role.nb_comptes|pluralize }}</span>
+        </h2>
+      </div>
+      <div class="table-conteneur" style="margin-bottom:1.6rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>E-mail</th>
+              <th>Mission</th>
+              <th>Charge en cours</th>
+              <th>Membre depuis</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in role.comptes %}
+            <tr>
+              <td><strong>{{ u.username }}</strong>{% if u == request.user %} <span class="badge badge-gris">vous</span>{% endif %}</td>
+              <td>{{ u.email|default:"—" }}</td>
+              <td>
+                {{ u.profil.get_specialite_display|default:"Généraliste" }}
+                <br>
+                <span style="font-size:.78rem; color:#9ca3af;">
+                  {% with communes=u.profil.communes_attribuees.all %}
+                    {% if communes %}{% for c in communes %}{{ c.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    {% else %}Toutes communes{% endif %}
+                  {% endwith %}
+                </span>
+              </td>
+              <td>
+                {{ u.nb_dossiers_en_cours }} dossier{{ u.nb_dossiers_en_cours|pluralize }}
+                <br><span style="font-size:.78rem; color:#9ca3af;">{{ u.nb_rdv_en_cours }} rendez-vous</span>
+              </td>
+              <td>{{ u.profil.date_creation|date:"d/m/Y"|default:"—" }}</td>
+              <td>
+                {% if u.is_active %}<span class="badge badge-vert">Actif</span>
+                {% else %}<span class="badge badge-rouge">Désactivé</span>{% endif %}
+              </td>
+              <td><a href="{% url 'appcadastre:modifier_utilisateur' u.pk %}">Modifier</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">
+              <div class="etat-vide">
+                <p>Aucun compte avec ce rôle pour le moment.</p>
+              </div>
+            </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

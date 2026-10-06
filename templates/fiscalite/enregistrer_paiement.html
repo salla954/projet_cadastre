@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Enregistrer un paiement — Taxe {{ taxe.annee }}{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:600px;">
+    <a href="{% url 'fiscalite:detail_taxe' taxe.pk %}">← Retour à la taxe</a>
+    <h1>Enregistrer un paiement</h1>
+    <p style="color:#4b5262;">
+      Taxe {{ taxe.annee }} — parcelle <span class="mono">{{ taxe.parcelle.reference }}</span><br>
+      Solde restant dû : <strong>{{ taxe.solde_restant|intcomma }} FCFA</strong> sur {{ taxe.montant_du|intcomma }} FCFA.
+    </p>
+
+    {% if form.non_field_errors %}
+      <div class="alerte alerte-error">
+        {% for erreur in form.non_field_errors %}<p style="margin:0;">{{ erreur }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem;">
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="id_montant">Montant reçu (FCFA)</label>
+          {{ form.montant }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">{{ form.montant.help_text }}</p>
+          {% for erreur in form.montant.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+        <div class="champ">
+          <label for="id_mode_paiement">Mode de paiement</label>
+          {{ form.mode_paiement }}
+        </div>
+        <div class="champ">
+          <label for="id_reference_transaction">Référence de transaction</label>
+          {{ form.reference_transaction }}
+        </div>
+        <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:.5rem;">Enregistrer le paiement</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

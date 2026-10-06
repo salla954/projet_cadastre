@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Émettre une taxe — {{ parcelle.reference }}{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:600px;">
+    <a href="{% url 'cadastre:parcelle_detail' parcelle.pk %}">← Retour à la parcelle</a>
+    <h1>Émettre un avis de taxe foncière</h1>
+    <p style="color:#4b5262;">
+      Parcelle <span class="mono">{{ parcelle.reference }}</span> — {{ parcelle.get_usage_display }},
+      valeur vénale {{ parcelle.valeur_venale_fcfa|intcomma }} FCFA.
+    </p>
+
+    {% if form.non_field_errors %}
+      <div class="alerte alerte-error">
+        {% for erreur in form.non_field_errors %}<p style="margin:0;">{{ erreur }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem;">
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="id_annee">{{ form.annee.label }}</label>
+          {{ form.annee }}
+          {% for erreur in form.annee.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="cartouche-formule" style="margin:1rem 0;">
+          <span>Valeur vénale</span><span class="formule-signe">×</span>
+          <span>{{ taux_apercu|floatformat:2 }}</span><span class="formule-signe">=</span>
+          <span>{{ montant_apercu|intcomma }} FCFA</span>
+        </div>
+        <p style="font-size:.82rem; color:#8a8f9a; margin-top:-.5rem;">
+          Taux appliqué automatiquement selon l'usage ({{ parcelle.get_usage_display }}) — non modifiable ici.
+        </p>
+
+        <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:1rem;">Émettre l'avis de taxe</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

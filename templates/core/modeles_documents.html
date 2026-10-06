@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titre %}Modèles de documents — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Modèles Word téléchargeables pour préparer votre dossier avant de le déposer en ligne.{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: none;">
+  <div class="conteneur">
+    <span class="hero-eyebrow">📄 Ressources</span>
+    <h1>Modèles de documents</h1>
+    <p class="lead">
+      Des modèles Word à télécharger, remplir et joindre à votre dossier — pour éviter un
+      aller-retour au bureau si un document précis vous manque.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur" style="max-width:900px;">
+    <div class="cartouche-grille cartouche-grille-3">
+
+      <div class="cartouche" style="border-top-color:var(--bleu-nuit);">
+        <span class="cartouche-icone">✉️</span>
+        <h4>Demande générale</h4>
+        <p>Modèle de courrier pour toute demande adressée au bureau du cadastre ou au centre des services fiscaux (extrait, renseignement, bornage…).</p>
+        <a href="{% static 'modeles/modele_demande_generale.docx' %}" class="btn btn-primaire" style="margin-top:.8rem; display:inline-block;" download>
+          ⬇️ Télécharger (.docx)
+        </a>
+      </div>
+
+      <div class="cartouche" style="border-top-color:#C98A2C;">
+        <span class="cartouche-icone">📝</span>
+        <h4>Attestation sur l'honneur</h4>
+        <p>Pour déclarer une information sous votre responsabilité (occupation, mise en valeur, absence de litige…).</p>
+        <a href="{% static 'modeles/modele_attestation_sur_honneur.docx' %}" class="btn btn-primaire" style="margin-top:.8rem; display:inline-block;" download>
+          ⬇️ Télécharger (.docx)
+        </a>
+      </div>
+
+      <div class="cartouche" style="border-top-color:#3A6B4C;">
+        <span class="cartouche-icone">🤝</span>
+        <h4>Procuration</h4>
+        <p>Pour autoriser une autre personne à effectuer une démarche en votre nom (dépôt, retrait de document…).</p>
+        <a href="{% static 'modeles/modele_procuration.docx' %}" class="btn btn-primaire" style="margin-top:.8rem; display:inline-block;" download>
+          ⬇️ Télécharger (.docx)
+        </a>
+      </div>
+
+    </div>
+
+    <div class="alerte alerte-info" style="margin-top:1.5rem;">
+      ℹ️ Ces modèles sont indicatifs. Le service instructeur peut demander une formulation ou des
+      pièces complémentaires spécifiques selon votre situation.
+    </div>
+
+    <div class="cta-bandeau" style="margin-top:1.5rem;">
+      <div>
+        <h2>Document rempli, prêt à déposer ?</h2>
+        <p>Joignez-le directement à votre dossier en ligne.</p>
+      </div>
+      <a href="{% url 'demarches:deposer' %}" class="btn btn-primaire">Déposer un dossier</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

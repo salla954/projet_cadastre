@@ -5,12 +5,12 @@
 <section class="section motif-cadastral">
   <div class="conteneur" style="max-width:700px;">
     <h1>Consulter le statut d'une parcelle</h1>
-    <p>Saisissez la référence cadastrale (ex : <span class="mono">TH-2024-00147</span>) pour connaître son statut d'immatriculation.</p>
+    <p>Saisissez la référence cadastrale (ex : <span class="mono">XXXX</span>) pour connaître son statut d'immatriculation.</p>
 
     <form method="get" class="form-inline" style="margin:1.5rem 0;">
       <div class="champ">
         <label for="reference">Référence cadastrale</label>
-        <input type="text" id="reference" name="reference" value="{{ reference }}" placeholder="TH-2024-00147" required>
+        <input type="text" id="reference" name="reference" value="{{ reference }}" placeholder="XXXX" required>
       </div>
       <button type="submit" class="btn btn-primaire">Rechercher</button>
     </form>
@@ -29,46 +29,33 @@
           </p>
           <p><strong>Usage :</strong> {{ resultat.get_usage_display }}</p>
           <p><strong>Superficie :</strong> {{ resultat.superficie_m2|intcomma }} m²</p>
-          <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--sable-fonce);">
-            <button type="button" id="btn-apercu-plan" class="btn btn-secondaire" onclick="afficherApercuPlan(this)">
-              👁️ Aperçu de l'extrait de plan
-            </button>
-            <a href="{% url 'core:extrait_plan' resultat.reference %}?telecharger=1" class="btn btn-primaire">
-              ⬇️ Télécharger le PDF
-            </a>
-            <p style="font-size:.82rem; color:#8a8f9a; margin-top:.6rem;">
-              Schéma indicatif proportionné à la superficie enregistrée — ne remplace pas un plan de bornage officiel.
-            </p>
 
-            <div id="apercu-plan-conteneur" style="display:none; margin-top:1.2rem;">
-              <iframe
-                id="apercu-plan-iframe"
-                style="width:100%; height:70vh; border:1px solid var(--sable-fonce); border-radius:var(--radius); background:#fff;"
-                title="Aperçu de l'extrait de plan cadastral">
-              </iframe>
+          {% with nicad=resultat.decoupage_nicad %}
+          {% if nicad %}
+          <div style="margin-top:1rem; padding:.9rem 1.1rem; background:var(--sable, #f6f1e9); border-radius:var(--radius); font-size:.88rem;">
+            <strong>Décomposition du NICAD</strong> (décret n° 2012-396 du 27 mars 2012) :
+            <div class="grille-2" style="margin-top:.5rem; gap:.3rem .8rem;">
+              <span>Région : <span class="mono">{{ nicad.region }}</span></span>
+              <span>Département : <span class="mono">{{ nicad.departement }}</span></span>
+              <span>Arrondissement : <span class="mono">{{ nicad.arrondissement }}</span></span>
+              <span>Commune : <span class="mono">{{ nicad.commune }}</span></span>
+              <span>Section cadastrale : <span class="mono">{{ nicad.section_cadastrale }}</span></span>
+              <span>N° de parcelle : <span class="mono">{{ nicad.numero_parcelle }}</span></span>
             </div>
           </div>
+          {% endif %}
+          {% endwith %}
+          <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--sable-fonce);">
+            <div class="alerte alerte-info" style="margin-bottom:0;">
+              📄 L'extrait de plan de cette parcelle n'est pas téléchargeable directement ici : il est
+              généré par un agent du cadastre. Pour l'obtenir, déposez une demande d'« Extrait cadastral »
+              en ligne, en précisant la référence <strong class="mono">{{ resultat.reference }}</strong>.
+            </div>
+            <a href="{% url 'demarches:deposer_type' 'EXTRAIT_CADASTRAL' %}" class="btn btn-primaire" style="margin-top:1rem;">
+              Demander un extrait cadastral →
+            </a>
+          </div>
         </div>
-
-        <script>
-          function afficherApercuPlan(bouton) {
-            const conteneur = document.getElementById('apercu-plan-conteneur');
-            const iframe = document.getElementById('apercu-plan-iframe');
-            const estVisible = conteneur.style.display !== 'none';
-            if (estVisible) {
-              conteneur.style.display = 'none';
-              bouton.textContent = "👁️ Aperçu de l'extrait de plan";
-            } else {
-              if (!iframe.dataset.charge) {
-                iframe.src = "{% url 'core:extrait_plan' resultat.reference %}";
-                iframe.dataset.charge = "1";
-              }
-              conteneur.style.display = 'block';
-              bouton.textContent = "🙈 Masquer l'aperçu";
-              conteneur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-          }
-        </script>
       {% else %}
         <div class="carte">
           <p>Aucune parcelle ne correspond à la référence <strong>{{ reference }}</strong>.</p>

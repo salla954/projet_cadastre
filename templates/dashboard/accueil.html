@@ -16,50 +16,129 @@
       </div>
     </div>
 
-    <div class="dash-grille">
-      <div class="dash-carte">
-        <div class="valeur">{{ chiffres.nb_parcelles }}</div>
-        <div class="label">Parcelles enregistrées</div>
+    <div class="dash-rubrique">
+      <h3 class="dash-rubrique-titre"><span class="badge badge-vert">🧭 Cadastre</span></h3>
+      <div class="dash-grille">
+        <div class="dash-carte dash-carte-cadastre">
+          <span class="dash-carte-icone">🗺️</span>
+          <div class="valeur">{{ chiffres.nb_parcelles }}</div>
+          <div class="label">Parcelles enregistrées</div>
+        </div>
+        <div class="dash-carte dash-carte-cadastre">
+          <span class="dash-carte-icone">👤</span>
+          <div class="valeur">{{ chiffres.nb_proprietaires }}</div>
+          <div class="label">Propriétaires distincts</div>
+        </div>
+        <div class="dash-carte dash-carte-cadastre">
+          <span class="dash-carte-icone">📍</span>
+          <div class="valeur">{{ chiffres.nb_communes }}</div>
+          <div class="label">Communes couvertes</div>
+        </div>
+        <div class="dash-carte dash-carte-cadastre">
+          <span class="dash-carte-icone">🆔</span>
+          <div class="valeur">{{ chiffres.nb_nicad_delivres }}</div>
+          <div class="label">NICAD délivrés (réf. officielle à 16 chiffres)</div>
+        </div>
       </div>
-      <div class="dash-carte">
-        <div class="valeur">{{ chiffres.nb_proprietaires }}</div>
-        <div class="label">Propriétaires distincts</div>
+    </div>
+
+    <div class="dash-rubrique">
+      <h3 class="dash-rubrique-titre"><span class="badge badge-ocre">💰 Fiscalité</span></h3>
+      <div class="dash-grille dash-grille-1">
+        <div class="dash-carte dash-carte-fiscalite">
+          <span class="dash-carte-icone">💵</span>
+          <div class="valeur">{{ chiffres.montant_total_du|floatformat:0|intcomma }} FCFA</div>
+          <div class="label">Taxe foncière émise (cumulé, toutes années)</div>
+        </div>
       </div>
-      <div class="dash-carte">
-        <div class="valeur">{{ chiffres.nb_communes }}</div>
-        <div class="label">Communes couvertes</div>
+    </div>
+
+    <div class="dash-rubrique">
+      <h3 class="dash-rubrique-titre"><span class="badge" style="background:#E6ECF5; color:var(--bleu-nuit);">📋 Démarches en ligne</span></h3>
+      <div class="dash-grille">
+        <div class="dash-carte dash-carte-demarches">
+          <span class="dash-carte-icone">📥</span>
+          <div class="valeur">{{ chiffres.nb_dossiers }}</div>
+          <div class="label">Dossiers déposés</div>
+        </div>
+        <div class="dash-carte dash-carte-demarches">
+          <span class="dash-carte-icone">🧍</span>
+          <div class="valeur">{{ chiffres.nb_demandeurs_distincts }}</div>
+          <div class="label">Demandeurs distincts (approximation)</div>
+        </div>
+        <div class="dash-carte dash-carte-demarches">
+          <span class="dash-carte-icone">📄</span>
+          <div class="valeur">{{ chiffres.nb_extraits_generes }}</div>
+          <div class="label">Extraits de plan délivrés</div>
+        </div>
       </div>
-      <div class="dash-carte">
-        <div class="valeur">{{ chiffres.montant_total_du|floatformat:0|intcomma }}</div>
-        <div class="label">FCFA de taxe émise (cumulé)</div>
+
+      <div class="grille-2" style="margin-top:1rem;">
+        <div class="graph-conteneur">
+          <h4 style="margin:0 0 .9rem;">🧭 Par type — Cadastre</h4>
+          <div class="liste-types-demande">
+            {% for ligne in dossiers_par_famille.Cadastre %}
+              <div class="type-demande-ligne">
+                <span class="type-demande-libelle">{{ ligne.libelle }}</span>
+                <div class="type-demande-piste"><div class="type-demande-remplissage" style="width:{{ ligne.largeur }}%; background:var(--vert-baobab);"></div></div>
+                <span class="type-demande-total">{{ ligne.total }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="graph-conteneur">
+          <h4 style="margin:0 0 .9rem;">💰 Par type — Fiscalité</h4>
+          <div class="liste-types-demande">
+            {% for ligne in dossiers_par_famille.Fiscalité %}
+              <div class="type-demande-ligne">
+                <span class="type-demande-libelle">{{ ligne.libelle }}</span>
+                <div class="type-demande-piste"><div class="type-demande-remplissage" style="width:{{ ligne.largeur }}%; background:var(--ocre);"></div></div>
+                <span class="type-demande-total">{{ ligne.total }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="grille-2">
       <div class="graph-conteneur">
-        <h3>Répartition des parcelles par statut</h3>
+        <h3>🗂️ Répartition des parcelles par statut</h3>
         <canvas id="graphStatut" height="220"></canvas>
       </div>
       <div class="graph-conteneur">
-        <h3>Répartition par usage</h3>
+        <h3>🏗️ Répartition par usage</h3>
         <canvas id="graphUsage" height="220"></canvas>
       </div>
     </div>
 
-    <div class="graph-conteneur">
-      <h3>Recouvrement fiscal : dû vs. payé, par année</h3>
-      <canvas id="graphAnnee" height="110"></canvas>
+    <div class="grille-2">
+      <div class="graph-conteneur">
+        <h3>💰 Recouvrement fiscal : dû vs. payé, par année</h3>
+        <canvas id="graphAnnee" height="220"></canvas>
+      </div>
+      <div class="graph-conteneur">
+        <h3>📋 Dossiers déposés par statut</h3>
+        <canvas id="graphDossiers" height="220"></canvas>
+      </div>
     </div>
 
-    <h2>Top communes par nombre de parcelles</h2>
+    <div class="section-titre" style="margin-top:1rem;">
+      <h2>🏆 Top communes par nombre de parcelles</h2>
+    </div>
     <div class="table-conteneur">
       <table>
-        <thead><tr><th>Commune</th><th>Nb. parcelles</th><th>Superficie cumulée</th></tr></thead>
+        <thead><tr><th>Commune</th><th>Nb. parcelles</th><th>Part</th><th>Superficie cumulée</th></tr></thead>
         <tbody>
           {% for c in par_commune %}
           <tr>
             <td>{{ c.commune__nom }}</td>
             <td>{{ c.nb_parcelles }}</td>
+            <td style="min-width:140px;">
+              <div class="mini-barre-piste">
+                <div class="mini-barre-remplissage" style="width:{{ c.part }}%;"></div>
+              </div>
+            </td>
             <td>{{ c.superficie|floatformat:0|intcomma }} m²</td>
           </tr>
           {% endfor %}
@@ -68,6 +147,36 @@
     </div>
   </div>
 </section>
+
+<style>
+  .dash-rubrique{ margin-bottom: 1.8rem; }
+  .dash-rubrique-titre{ margin-bottom: .8rem; }
+  .dash-rubrique-titre .badge{ font-size:.85rem; padding:.4rem .85rem; font-weight:600; }
+  .dash-grille-1{ grid-template-columns: 1fr; }
+
+  .dash-carte{ position:relative; }
+  .dash-carte-icone{ position:absolute; top:1.1rem; right:1.2rem; font-size:1.4rem; opacity:.85; }
+  .dash-carte-cadastre{ border-top-color: var(--vert-baobab); }
+  .dash-carte-fiscalite{ border-top-color: var(--ocre); }
+  .dash-carte-demarches{ border-top-color: var(--bleu-nuit); }
+
+  .mini-barre-piste{ background:var(--sable); border-radius:999px; height:8px; overflow:hidden; }
+  .mini-barre-remplissage{ height:100%; background:linear-gradient(90deg, var(--bleu-nuit), var(--ocre)); border-radius:999px; }
+
+  .liste-types-demande{ display:flex; flex-direction:column; gap:.55rem; }
+  .type-demande-ligne{ display:flex; align-items:center; gap:.7rem; }
+  .type-demande-libelle{ width:170px; flex-shrink:0; font-size:.82rem; color:#4b5262; }
+  .type-demande-piste{ flex:1; background:var(--sable); border-radius:999px; height:9px; overflow:hidden; }
+  .type-demande-remplissage{ height:100%; border-radius:999px; }
+  .type-demande-total{ width:26px; flex-shrink:0; text-align:right; font-size:.85rem; font-weight:700; color:var(--bleu-nuit); }
+
+  @media (max-width: 900px){
+    .dash-grille-1{ grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px){
+    .type-demande-libelle{ width:120px; font-size:.76rem; }
+  }
+</style>
 
 <script>
 const palette = ['#1B2A4A', '#C98A2C', '#3A6B4C', '#2B4270', '#E4A94F', '#B3452C'];
@@ -103,6 +212,16 @@ new Chart(document.getElementById('graphAnnee'), {
     ]
   },
   options: { scales: { y: { beginAtZero: true } } }
+});
+
+const donneesStatutDossier = {{ json_statut_dossier|safe }};
+new Chart(document.getElementById('graphDossiers'), {
+  type: 'doughnut',
+  data: {
+    labels: donneesStatutDossier.map(d => d.statut),
+    datasets: [{ data: donneesStatutDossier.map(d => d.total), backgroundColor: palette }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } } }
 });
 </script>
 {% endblock %}

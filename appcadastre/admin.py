@@ -19,6 +19,29 @@ class UserAdmin(DjangoUserAdmin):
     def role_affiche(self, obj):
         return getattr(obj, "profil", None) and obj.profil.get_role_display()
 
+    def save_formset(self, request, form, formset, change):
+        if formset.model is Profil and not change:
+            # À la création d'un utilisateur, le signal post_save (voir
+            # appcadastre/signals.py) a déjà créé un Profil pour lui. Ce
+            # formulaire intégré ne le sait pas et tenterait d'en insérer un
+            # second pour le même utilisateur (violation de la contrainte
+            # d'unicité) — on reporte donc les champs saisis sur l'instance
+            # déjà existante plutôt que d'enregistrer l'instance transitoire
+            # du formulaire (qui n'a pas de date_creation valide).
+            instances = formset.save(commit=False)
+            for instance in instances:
+                profil_existant = Profil.objects.filter(utilisateur=instance.utilisateur).first()
+                if profil_existant:
+                    profil_existant.role = instance.role
+                    profil_existant.telephone = instance.telephone
+                    profil_existant.service = instance.service
+                    profil_existant.save()
+                else:
+                    instance.save()
+            formset.save_m2m()
+        else:
+            formset.save()
+
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

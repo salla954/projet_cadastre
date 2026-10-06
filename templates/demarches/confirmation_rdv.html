@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titre %}Rendez-vous demandé — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:640px; text-align:center;">
+    <div class="alerte alerte-success" style="display:inline-block; padding:.4rem 1rem; margin-bottom:1rem;">
+      Demande de rendez-vous envoyée
+    </div>
+    <h1>Votre demande a bien été enregistrée</h1>
+    <p style="color:#4b5262; font-size:1.05rem;">
+      Un agent va confirmer (ou proposer un autre créneau pour) ce rendez-vous. Conservez la
+      référence ci-dessous pour suivre son statut.
+    </p>
+
+    <div class="carte" style="background:var(--bleu-nuit); color:var(--blanc); border-radius:var(--radius); padding:1.6rem; margin:1.5rem 0;">
+      <span style="font-family:var(--font-mono); font-size:.8rem; color:rgba(255,255,255,.7); text-transform:uppercase; letter-spacing:.08em;">Référence de suivi</span>
+      <div style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; margin-top:.4rem; letter-spacing:.05em;">
+        {{ rdv.reference_suivi }}
+      </div>
+    </div>
+
+    <p style="color:#4b5262;">
+      {{ rdv.get_motif_display }} — {{ rdv.date_souhaitee|date:"d F Y" }}, {{ rdv.get_creneau_display }}
+    </p>
+
+    <div class="hero-actions" style="justify-content:center;">
+      <a href="{% url 'demarches:recu_rdv_pdf' rdv.reference_suivi %}" class="btn btn-secondaire">⬇️ Télécharger le reçu (PDF)</a>
+      <a href="{% url 'demarches:mon_espace' %}" class="btn btn-primaire">Voir dans Mon espace</a>
+      <a href="{% url 'core:accueil' %}" class="btn btn-contour-sombre">Retour à l'accueil</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

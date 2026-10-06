@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titre %}Rendez-vous — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Rendez-vous</h1>
+      <a href="{% url 'demarches:liste_dossiers' %}" class="voir-tout">Dossiers →</a>
+    </div>
+
+    <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
+      <div class="champ">
+        <label for="id-filtre-statut">Statut</label>
+        <select name="statut" id="id-filtre-statut">
+          <option value="">Tous</option>
+          {% for valeur, libelle in statut_choices %}
+            <option value="{{ valeur }}" {% if valeur == statut_selectionne %}selected{% endif %}>{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="champ">
+        <label for="id-filtre-agent">Agent assigné</label>
+        <select name="agent" id="id-filtre-agent">
+          <option value="">Tous</option>
+          <option value="non_assigne" {% if agent_selectionne == "non_assigne" %}selected{% endif %}>Non assigné</option>
+          {% for a in agents_choices %}
+            <option value="{{ a.pk }}" {% if agent_selectionne == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-contour-sombre">Filtrer</button>
+    </form>
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr><th>Référence</th><th>Motif</th><th>Date souhaitée</th><th>Créneau</th><th>Demandeur</th><th>Statut</th><th>Agent</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for rdv in rendez_vous %}
+            <tr>
+              <td style="font-family:var(--font-mono); font-size:.85rem;">{{ rdv.reference_suivi }}</td>
+              <td>{{ rdv.get_motif_display }}</td>
+              <td>{{ rdv.date_souhaitee|date:"d M Y" }}</td>
+              <td>{{ rdv.get_creneau_display }}</td>
+              <td>{{ rdv.nom_demandeur }}</td>
+              <td>
+                {% if rdv.statut == "CONFIRME" %}
+                  <span class="badge badge-vert">{{ rdv.get_statut_display }}</span>
+                {% elif rdv.statut == "ANNULE" %}
+                  <span class="badge badge-rouge">{{ rdv.get_statut_display }}</span>
+                {% elif rdv.statut == "HONORE" %}
+                  <span class="badge badge-gris">{{ rdv.get_statut_display }}</span>
+                {% else %}
+                  <span class="badge badge-ocre">{{ rdv.get_statut_display }}</span>
+                {% endif %}
+              </td>
+              <td>{% if rdv.agent_traitant %}{{ rdv.agent_traitant.username }}{% else %}<span class="badge badge-gris">Non assigné</span>{% endif %}</td>
+              <td><a href="{% url 'demarches:detail_rdv' rdv.pk %}">Traiter →</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="8">Aucun rendez-vous pour le moment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

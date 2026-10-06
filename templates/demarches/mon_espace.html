@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block titre %}Mon espace — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:760px;">
+    <div class="section-titre">
+      <h1>Mon espace</h1>
+      <a href="{% url 'demarches:deposer' %}" class="voir-tout">Déposer un dossier →</a>
+    </div>
+    <p style="color:#4b5262; margin-bottom:1.5rem;">
+      Retrouvez ici toutes vos démarches (dossiers déposés et rendez-vous) à partir du numéro de
+      téléphone utilisé au moment du dépôt — sans avoir besoin d'un compte.
+    </p>
+
+    <form method="post" class="form-inline" style="margin-bottom:2rem; gap:.8rem;">
+      {% csrf_token %}
+      <div class="champ" style="flex-grow:1;">
+        {{ form.telephone }}
+      </div>
+      <button type="submit" class="btn btn-primaire">Rechercher</button>
+    </form>
+
+    {% if recherche_effectuee %}
+      {% if not dossiers and not rendez_vous %}
+        <div class="alerte alerte-error">
+          Aucune démarche ne correspond à ce numéro. Vérifiez qu'il s'agit bien de celui utilisé lors du dépôt.
+        </div>
+      {% else %}
+
+        {% if dossiers %}
+          <h3 style="margin-top:0;">📥 Dossiers ({{ dossiers|length }})</h3>
+          <div style="display:flex; flex-direction:column; gap:.9rem; margin-bottom:2rem;">
+            {% for dossier in dossiers %}
+              <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.3rem 1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;">
+                  <span style="font-family:var(--font-mono); font-size:.82rem; color:#6b7280;">{{ dossier.reference_suivi }}</span>
+                  {% if dossier.statut == "VALIDE" %}
+                    <span class="badge badge-vert">{{ dossier.get_statut_display }}</span>
+                  {% elif dossier.statut == "REJETE" %}
+                    <span class="badge badge-rouge">{{ dossier.get_statut_display }}</span>
+                  {% elif dossier.statut == "EN_COURS" %}
+                    <span class="badge badge-ocre">{{ dossier.get_statut_display }}</span>
+                  {% else %}
+                    <span class="badge badge-gris">{{ dossier.get_statut_display }}</span>
+                  {% endif %}
+                </div>
+                <h4 style="margin:.5rem 0 .2rem;">{{ dossier.get_type_dossier_display }}</h4>
+                <p style="color:#4b5262; margin:0; font-size:.9rem;">
+                  {% if dossier.parcelle %}Parcelle {{ dossier.parcelle.reference }}{% else %}{{ dossier.localisation_saisie }}{% endif %}
+                  · déposé le {{ dossier.date_depot|date:"d F Y" }}
+                </p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if rendez_vous %}
+          <h3>📅 Rendez-vous ({{ rendez_vous|length }})</h3>
+          <div style="display:flex; flex-direction:column; gap:.9rem;">
+            {% for rdv in rendez_vous %}
+              <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.3rem 1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;">
+                  <span style="font-family:var(--font-mono); font-size:.82rem; color:#6b7280;">{{ rdv.reference_suivi }}</span>
+                  {% if rdv.statut == "CONFIRME" %}
+                    <span class="badge badge-vert">{{ rdv.get_statut_display }}</span>
+                  {% elif rdv.statut == "ANNULE" %}
+                    <span class="badge badge-rouge">{{ rdv.get_statut_display }}</span>
+                  {% elif rdv.statut == "HONORE" %}
+                    <span class="badge badge-gris">{{ rdv.get_statut_display }}</span>
+                  {% else %}
+                    <span class="badge badge-ocre">{{ rdv.get_statut_display }}</span>
+                  {% endif %}
+                </div>
+                <h4 style="margin:.5rem 0 .2rem;">{{ rdv.get_motif_display }}</h4>
+                <p style="color:#4b5262; margin:0; font-size:.9rem;">
+                  {{ rdv.date_souhaitee|date:"d F Y" }} — {{ rdv.get_creneau_display }}
+                </p>
+                {% if rdv.commentaire_agent %}
+                  <div class="alerte alerte-info" style="margin-top:.8rem; margin-bottom:0;">
+                    <strong>Message de l'agent :</strong> {{ rdv.commentaire_agent }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

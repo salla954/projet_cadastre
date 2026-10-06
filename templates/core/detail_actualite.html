@@ -6,6 +6,12 @@
     <span class="date">{{ actualite.date_publication|date:"d F Y" }}</span>
     <h1>{{ actualite.titre }}</h1>
     <p>{{ actualite.contenu|linebreaks }}</p>
+    {% if actualite.source_url %}
+      <p style="margin:1.2rem 0; padding:.8rem 1rem; background:var(--sable); border-radius:var(--radius); font-size:.92rem;">
+        <strong>Source :</strong>
+        <a href="{{ actualite.source_url }}" target="_blank" rel="noopener noreferrer">Voir l'article original sur dgid.sn <span aria-hidden="true">↗</span></a>
+      </p>
+    {% endif %}
     <a href="{% url 'core:liste_actualites' %}">← Retour aux actualités</a>
   </div>
 </section>

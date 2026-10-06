@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titre %}{% if creation %}Nouvelle section{% else %}Modifier la section{% endif %} — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:680px;">
+    <div class="section-titre">
+      <h1>{% if creation %}Nouvelle section{% else %}Modifier la section{% endif %}</h1>
+      <a href="{% url 'core:gestion_guide' %}" class="voir-tout">← Toutes les sections</a>
+    </div>
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="champ">
+          <label for="id_titre">Titre de la section</label>
+          {{ form.titre }}
+          {% for erreur in form.titre.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_categorie">Rubrique</label>
+          {{ form.categorie }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">Détermine sous quel onglet la section apparaît sur la page publique.</p>
+          {% for erreur in form.categorie.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_contenu">Contenu</label>
+          {{ form.contenu }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">
+            Astuce : une série de lignes commençant par "- " devient automatiquement une liste à puces.
+          </p>
+          {% for erreur in form.contenu.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_ordre">Ordre d'affichage</label>
+            {{ form.ordre }}
+            <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">Les plus petites valeurs s'affichent en premier.</p>
+          </div>
+          <div class="champ" style="display:flex; align-items:center; gap:.5rem; margin-top:1.6rem;">
+            {{ form.publie }}
+            <label for="id_publie" style="margin:0;">Publiée (visible sur le site public)</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:.5rem;">
+          {% if creation %}Créer la section{% else %}Enregistrer les modifications{% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

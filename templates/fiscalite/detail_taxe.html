@@ -16,12 +16,19 @@
         <p><strong>Solde restant :</strong> {{ taxe.solde_restant|intcomma }} FCFA</p>
         <p><strong>Date limite :</strong> {{ taxe.date_limite|date:"d/m/Y" }}</p>
       </div>
+      {% if taxe.solde_restant > 0 %}
+        <a href="{% url 'fiscalite:enregistrer_paiement' taxe.pk %}" class="btn btn-primaire" style="margin-top:1rem; display:inline-block;">
+          💰 Enregistrer un paiement
+        </a>
+      {% else %}
+        <p style="margin-top:1rem;"><span class="badge badge-vert">Taxe intégralement payée</span></p>
+      {% endif %}
     </div>
 
     <h2>Paiements enregistrés</h2>
     <div class="table-conteneur">
       <table>
-        <thead><tr><th>Date</th><th>Montant</th><th>Mode</th><th>Référence</th></tr></thead>
+        <thead><tr><th>Date</th><th>Montant</th><th>Mode</th><th>Référence</th><th></th></tr></thead>
         <tbody>
           {% for p in taxe.paiements.all %}
           <tr>
@@ -29,9 +36,10 @@
             <td>{{ p.montant|intcomma }} FCFA</td>
             <td>{{ p.get_mode_paiement_display }}</td>
             <td class="mono">{{ p.reference_transaction|default:"—" }}</td>
+            <td><a href="{% url 'fiscalite:quittance_paiement_pdf' p.pk %}" class="btn btn-contour-sombre" style="padding:.35rem .7rem; font-size:.8rem;">🧾 Quittance</a></td>
           </tr>
           {% empty %}
-          <tr><td colspan="4">Aucun paiement enregistré.</td></tr>
+          <tr><td colspan="5">Aucun paiement enregistré.</td></tr>
           {% endfor %}
         </tbody>
       </table>

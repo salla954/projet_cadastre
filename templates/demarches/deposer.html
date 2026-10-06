@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block titre %}{{ libelle_type }} — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:680px;">
+    <div class="section-titre">
+      <h1>Déposer un dossier</h1>
+      <a href="{% url 'demarches:suivre' %}" class="voir-tout">Suivre un dossier existant →</a>
+    </div>
+
+    <p style="margin-bottom:1rem;">
+      <a href="{% url 'demarches:deposer' %}" class="voir-tout">← Changer de type de demande</a>
+    </p>
+
+    <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:1.3rem;">
+      {% if famille == "Cadastre" %}
+        <span class="badge badge-vert">Cadastre</span>
+      {% else %}
+        <span class="badge badge-ocre">Fiscalité</span>
+      {% endif %}
+      <h2 style="margin:0; font-size:1.2rem;">{{ libelle_type }}</h2>
+    </div>
+
+    {% if form.non_field_errors or erreur_fichier %}
+      <div class="alerte alerte-error">
+        {% for erreur in form.non_field_errors %}<p style="margin:0;">{{ erreur }}</p>{% endfor %}
+        {% if erreur_fichier %}<p style="margin:0;">{{ erreur_fichier }}</p>{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.parcelle %}
+        <div class="champ">
+          <label for="id_parcelle">{{ form.parcelle.label }}</label>
+          {{ form.parcelle }}
+          {% for erreur in form.parcelle.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        {% if form.localisation_saisie %}
+        <div class="champ">
+          <label for="id_localisation_saisie">{{ form.localisation_saisie.label }}</label>
+          {{ form.localisation_saisie }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">{{ form.localisation_saisie.help_text }}</p>
+          {% for erreur in form.localisation_saisie.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_nom_demandeur">Nom complet</label>
+            {{ form.nom_demandeur }}
+            {% for erreur in form.nom_demandeur.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="id_telephone_demandeur">Téléphone</label>
+            {{ form.telephone_demandeur }}
+            {% for erreur in form.telephone_demandeur.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="champ">
+          <label for="id_email_demandeur">E-mail (facultatif)</label>
+          {{ form.email_demandeur }}
+          {% for erreur in form.email_demandeur.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_description">Description de la demande</label>
+          {% if aide_type %}
+            <p style="font-size:.8rem; color:#6b7280; margin:0 0 .4rem;">{{ aide_type }}</p>
+          {% endif %}
+          {{ form.description }}
+          {% for erreur in form.description.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_pieces_jointes">
+            Pièces jointes
+            <span class="badge badge-rouge" style="margin-left:.4rem; font-size:.72rem;">obligatoire</span>
+          </label>
+          {% if documents_suggeres %}
+            <ul style="margin:.3rem 0 .5rem 1.1rem; padding:0; font-size:.85rem; color:#4b5262;">
+              {% for document in documents_suggeres %}
+                <li>{{ document }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <input type="file" name="pieces_jointes" id="id_pieces_jointes" multiple required accept=".pdf,.jpg,.jpeg,.png">
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">
+            Au moins un fichier est requis. Formats acceptés : PDF, JPG, PNG — 10 Mo maximum par fichier.
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn-primaire" style="width:100%; margin-top:.5rem;">Déposer le dossier</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

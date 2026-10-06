@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titre %}Mes notifications — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:760px;">
+    <div class="section-titre">
+      <h1>Mes notifications</h1>
+      <a href="{% url 'demarches:mon_espace' %}" class="voir-tout">Mon espace →</a>
+    </div>
+    <p style="color:#4b5262; margin-bottom:1.5rem;">
+      Retrouvez ici l'historique de toutes les notifications liées à vos démarches (dépôt,
+      changements de statut) à partir du numéro de téléphone utilisé au moment du dépôt.
+    </p>
+
+    <form method="post" class="form-inline" style="margin-bottom:2rem; gap:.8rem;">
+      {% csrf_token %}
+      <div class="champ" style="flex-grow:1;">
+        {{ form.telephone }}
+      </div>
+      <button type="submit" class="btn btn-primaire">Rechercher</button>
+    </form>
+
+    {% if recherche_effectuee %}
+      {% if not notifications %}
+        <div class="alerte alerte-error">
+          Aucune notification ne correspond à ce numéro. Vérifiez qu'il s'agit bien de celui utilisé lors du dépôt.
+        </div>
+      {% else %}
+        <div style="display:flex; flex-direction:column; gap:.9rem;">
+          {% for notif in notifications %}
+            <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.2rem 1.5rem;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;">
+                <span style="font-family:var(--font-mono); font-size:.82rem; color:#6b7280;">{{ notif.reference_suivi }}</span>
+                <span style="font-size:.82rem; color:#9ca3af;">{{ notif.date_creation|date:"d F Y à H:i" }}</span>
+              </div>
+              <p style="margin:.5rem 0 0; color:#1f2430;">🔔 {{ notif.message }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

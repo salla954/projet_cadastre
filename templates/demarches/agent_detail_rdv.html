@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titre %}{{ rdv.reference_suivi }} — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:760px;">
+    <div class="section-titre">
+      <h1 style="font-family:var(--font-mono); font-size:1.4rem;">{{ rdv.reference_suivi }}</h1>
+      <a href="{% url 'demarches:liste_rdv' %}" class="voir-tout">← Tous les rendez-vous</a>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alerte alerte-success">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem; margin-bottom:1.5rem;">
+      <h3 style="margin-top:0;">{{ rdv.get_motif_display }}</h3>
+      <div class="grille-2">
+        <p><strong>Demandeur :</strong> {{ rdv.nom_demandeur }}</p>
+        <p><strong>Téléphone :</strong> {{ rdv.telephone_demandeur }}</p>
+        <p><strong>E-mail :</strong> {{ rdv.email_demandeur|default:"—" }}</p>
+        <p><strong>Demandé le :</strong> {{ rdv.date_creation|date:"d F Y à H:i" }}</p>
+        <p><strong>Date souhaitée :</strong> {{ rdv.date_souhaitee|date:"d F Y" }}</p>
+        <p><strong>Créneau :</strong> {{ rdv.get_creneau_display }}</p>
+      </div>
+      {% if rdv.precision %}
+        <p><strong>Précision :</strong> {{ rdv.precision }}</p>
+      {% endif %}
+      {% if rdv.agent_traitant %}
+        <p style="font-size:.85rem; color:#6b7280;">Agent actuellement assigné : <strong>{{ rdv.agent_traitant.get_username }}</strong></p>
+      {% endif %}
+    </div>
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.8rem;">
+      <h3 style="margin-top:0;">Traitement du rendez-vous</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div class="champ">
+          <label for="id_statut">Statut</label>
+          {{ form.statut }}
+        </div>
+        <div class="champ">
+          <label for="id_agent_traitant">Agent assigné</label>
+          {{ form.agent_traitant }}
+          <p style="font-size:.8rem; color:#6b7280; margin:.3rem 0 0;">{{ form.agent_traitant.help_text }}</p>
+        </div>
+        <div class="champ">
+          <label for="id_commentaire_agent">Commentaire (visible par le demandeur lors du suivi)</label>
+          {{ form.commentaire_agent }}
+        </div>
+        <button type="submit" class="btn btn-primaire">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -27,12 +27,36 @@ class Profil(models.Model):
         (VISITEUR, "Visiteur"),
     ]
 
+    # Spécialité / mission confiée à un agent — n'a de sens que pour les rôles
+    # AGENT et ADMINISTRATEUR. Sert à orienter l'attribution des dossiers et
+    # rendez-vous vers l'agent le plus pertinent.
+    GENERALISTE = "GENERALISTE"
+    SPECIALITE_CADASTRE = "CADASTRE"
+    SPECIALITE_FISCALITE = "FISCALITE"
+    SPECIALITE_ACCUEIL = "ACCUEIL"
+    SPECIALITE_CHOICES = [
+        (GENERALISTE, "Généraliste"),
+        (SPECIALITE_CADASTRE, "Cadastre"),
+        (SPECIALITE_FISCALITE, "Fiscalité"),
+        (SPECIALITE_ACCUEIL, "Accueil & rendez-vous"),
+    ]
+
     utilisateur = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="profil",
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=AGENT)
+    specialite = models.CharField(
+        "Spécialité / mission", max_length=20, choices=SPECIALITE_CHOICES,
+        default=GENERALISTE, blank=True,
+        help_text="Domaine principal de responsabilité de cet agent (facultatif, pour orienter l'attribution des dossiers).",
+    )
+    communes_attribuees = models.ManyToManyField(
+        "cadastre.Commune", verbose_name="Communes attribuées", blank=True,
+        related_name="agents_attribues",
+        help_text="Communes dont cet agent a la charge. Laisser vide pour toutes les communes.",
+    )
     telephone = models.CharField(max_length=20, blank=True)
     service = models.CharField(
         max_length=100, blank=True,

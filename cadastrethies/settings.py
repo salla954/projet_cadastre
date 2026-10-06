@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'cadastre',
     'fiscalite',
     'dashboard',
+    'demarches',
 ]
 
 MIDDLEWARE = [
@@ -80,10 +81,17 @@ WSGI_APPLICATION = 'cadastrethies.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'cadastre_fiscalite',
+        'USER': 'postgres',
+        'PASSWORD': '222222',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
+GDAL_LIBRARY_PATH = r'C:\Program Files\QGIS 3.44.6\bin\gdal312.dll'
+GEOS_LIBRARY_PATH = r'C:\Program Files\QGIS 3.44.6\bin\geos_c.dll'
 
 
 # Password validation
@@ -122,6 +130,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Fichiers déposés par les usagers (pièces jointes des dossiers)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

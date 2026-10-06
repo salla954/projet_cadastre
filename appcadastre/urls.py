@@ -9,4 +9,5 @@ urlpatterns = [
     path("utilisateurs/", views.liste_utilisateurs, name="liste_utilisateurs"),
     path("utilisateurs/nouveau/", views.creer_utilisateur, name="creer_utilisateur"),
     path("utilisateurs/<int:pk>/modifier/", views.modifier_utilisateur, name="modifier_utilisateur"),
+    path("roles/", views.apercu_roles, name="apercu_roles"),
 ]

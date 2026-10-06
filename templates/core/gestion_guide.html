@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block titre %}Gérer le guide du visiteur — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Sections du guide du visiteur</h1>
+      <a href="{% url 'core:creer_section_guide' %}" class="btn btn-primaire">+ Nouvelle section</a>
+    </div>
+    <p style="color:#4b5262; margin-top:-1rem; margin-bottom:1.5rem;">
+      Utilisez les flèches pour réordonner les sections, ou modifiez le champ "ordre" pour un contrôle plus
+      précis. <a href="{% url 'core:guide_cadastre' %}" target="_blank" rel="noopener noreferrer">Voir la page publique ↗</a>
+    </p>
+
+    {% if messages %}
+      {% for message in messages %}<div class="alerte alerte-success">{{ message }}</div>{% endfor %}
+    {% endif %}
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr><th></th><th>Titre</th><th>Rubrique</th><th>Aperçu</th><th>Statut</th><th>Mise à jour</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for section in sections %}
+            <tr>
+              <td style="white-space:nowrap;">
+                <form method="post" action="{% url 'core:deplacer_section_guide' section.pk 'haut' %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="bouton-deplacer" {% if forloop.first %}disabled{% endif %} aria-label="Monter">↑</button>
+                </form>
+                <form method="post" action="{% url 'core:deplacer_section_guide' section.pk 'bas' %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="bouton-deplacer" {% if forloop.last %}disabled{% endif %} aria-label="Descendre">↓</button>
+                </form>
+              </td>
+              <td>{{ section.titre }}</td>
+              <td style="color:#6b7280; font-size:.85rem; white-space:nowrap;">{{ section.get_categorie_display }}</td>
+              <td style="color:#6b7280; font-size:.88rem; max-width:280px;">{{ section.contenu|truncatechars:80 }}</td>
+              <td>
+                <form method="post" action="{% url 'core:basculer_publication_section_guide' section.pk %}">
+                  {% csrf_token %}
+                  {% if section.publie %}
+                    <button type="submit" class="badge badge-vert badge-bouton" title="Cliquer pour mettre en brouillon">Publiée</button>
+                  {% else %}
+                    <button type="submit" class="badge badge-gris badge-bouton" title="Cliquer pour publier">Brouillon</button>
+                  {% endif %}
+                </form>
+              </td>
+              <td style="color:#6b7280; font-size:.85rem; white-space:nowrap;">{{ section.date_maj|date:"d M Y" }}</td>
+              <td style="white-space:nowrap;">
+                <a href="{% url 'core:modifier_section_guide' section.pk %}">Modifier</a> ·
+                <a href="{% url 'core:supprimer_section_guide' section.pk %}" style="color:var(--danger);">Supprimer</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7">Aucune section pour le moment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

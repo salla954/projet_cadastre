@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titre %}Prendre rendez-vous — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:640px;">
+    <div class="section-titre">
+      <h1>Prendre rendez-vous</h1>
+      <a href="{% url 'demarches:suivre' %}" class="voir-tout">Suivre une démarche →</a>
+    </div>
+    <p style="color:#4b5262; margin-bottom:1.5rem;">
+      Choisissez un créneau plutôt que de vous présenter sans rendez-vous. Votre demande sera
+      confirmée par un agent — vous recevrez une référence de suivi.
+    </p>
+
+    {% if form.non_field_errors %}
+      <div class="alerte alerte-error">
+        {% for erreur in form.non_field_errors %}<p style="margin:0;">{{ erreur }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:2rem;">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="champ">
+          <label for="id_motif">Motif du rendez-vous</label>
+          {{ form.motif }}
+          {% for erreur in form.motif.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+        </div>
+
+        <div class="champ">
+          <label for="id_precision">Précision (facultatif)</label>
+          {{ form.precision }}
+        </div>
+
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_date_souhaitee">Date souhaitée</label>
+            {{ form.date_souhaitee }}
+            {% for erreur in form.date_souhaitee.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="id_creneau">Créneau</label>
+            {{ form.creneau }}
+            {% for erreur in form.creneau.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="grille-2">
+          <div class="champ">
+            <label for="id_nom_demandeur">Nom complet</label>
+            {{ form.nom_demandeur }}
+            {% for erreur in form.nom_demandeur.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+          <div class="champ">
+            <label for="id_telephone_demandeur">Téléphone</label>
+            {{ form.telephone_demandeur }}
+            {% for erreur in form.telephone_demandeur.errors %}<p style="color:var(--danger); font-size:.82rem;">{{ erreur }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="champ">
+          <label for="id_email_demandeur">E-mail (facultatif)</label>
+          {{ form.email_demandeur }}
+        </div>
+
+        <p style="font-size:.82rem; color:#8a8f9a; margin:.5rem 0 1rem;">
+          Centres ouverts du lundi au vendredi, de 8h00 à 13h30 et de 14h30 à 17h00.
+        </p>
+
+        <button type="submit" class="btn btn-primaire" style="width:100%;">Demander ce rendez-vous</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

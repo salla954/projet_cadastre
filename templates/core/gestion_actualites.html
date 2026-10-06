@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titre %}Gérer les actualités — Espace agent{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h1>Actualités</h1>
+      <a href="{% url 'core:creer_actualite' %}" class="btn btn-primaire">+ Nouvelle actualité</a>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}<div class="alerte alerte-success">{{ message }}</div>{% endfor %}
+    {% endif %}
+
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr><th>Titre</th><th>Date de publication</th><th>Statut</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for actualite in actualites %}
+            <tr>
+              <td>{{ actualite.titre }}</td>
+              <td>{{ actualite.date_publication|date:"d M Y" }}</td>
+              <td>
+                {% if actualite.publie %}
+                  <span class="badge badge-vert">Publiée</span>
+                {% else %}
+                  <span class="badge badge-gris">Brouillon</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'core:modifier_actualite' actualite.pk %}">Modifier</a> ·
+                <a href="{% url 'core:supprimer_actualite' actualite.pk %}" style="color:var(--danger);">Supprimer</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4">Aucune actualité pour le moment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

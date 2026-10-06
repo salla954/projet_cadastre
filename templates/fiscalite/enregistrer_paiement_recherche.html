@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Enregistrer un paiement — Back-office{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:600px;">
+    <div class="section-titre">
+      <h1>💰 Enregistrer un paiement</h1>
+      <a href="{% url 'fiscalite:liste_taxes' %}" class="voir-tout">← Taxes foncières</a>
+    </div>
+    <p style="color:#4b5262;">Recherchez la parcelle concernée par sa référence.</p>
+
+    <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
+      <div class="champ" style="flex-grow:1;">
+        <input type="text" name="reference" value="{{ reference }}" placeholder="Ex. 0723011103100543" autofocus>
+      </div>
+      <button type="submit" class="btn btn-primaire">Rechercher</button>
+    </form>
+
+    {% if erreur %}
+      <div class="alerte alerte-error">{{ erreur }}</div>
+    {% endif %}
+
+    {% if parcelle %}
+      <h3 class="mono">{{ parcelle.reference }}</h3>
+      {% if taxes_impayees %}
+        <div style="display:flex; flex-direction:column; gap:.8rem;">
+          {% for taxe in taxes_impayees %}
+            <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.2rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.8rem;">
+              <div>
+                <strong>Taxe {{ taxe.annee }}</strong>
+                <p style="margin:.2rem 0 0; color:#4b5262; font-size:.9rem;">Solde restant : {{ taxe.solde_restant|intcomma }} FCFA sur {{ taxe.montant_du|intcomma }} FCFA</p>
+              </div>
+              <a href="{% url 'fiscalite:enregistrer_paiement' taxe.pk %}" class="btn btn-primaire">Enregistrer le paiement →</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alerte alerte-info">Cette parcelle n'a aucun avis de taxe avec un solde restant à payer.</div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

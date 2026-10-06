@@ -4,8 +4,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css">
 <style>
   #carte-interactive{
     height: 62vh; min-height: 420px; width: 100%;
@@ -17,8 +15,9 @@
   }
   .legende-item{ display:flex; align-items:center; gap:.45rem; }
   .legende-puce{
-    width:12px; height:12px; border-radius:50%; display:inline-block;
-    box-shadow: 0 0 0 1px rgba(0,0,0,.15);
+    width:13px; height:13px; border-radius:2px; display:inline-block;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.35);
+    transform: rotate(8deg);
   }
   #carte-compteur{ font-size:.85rem; color:#6b7280; margin: 0 0 .7rem; }
   .popup-parcelle{ font-family: var(--font-body); min-width: 210px; }
@@ -29,6 +28,37 @@
   .popup-parcelle .popup-actions{ margin-top:.55rem; display:flex; gap:.5rem; flex-wrap:wrap; }
   .popup-parcelle .popup-actions a{ font-size:.78rem; padding:.3rem .6rem; }
   .leaflet-popup-content-wrapper{ border-radius: var(--radius); }
+
+  /* ---------- Volet "Analyse spatiale" ---------- */
+  .carte-avec-panneau{ display:flex; gap:0; position:relative; }
+  .carte-avec-panneau #carte-interactive{ flex:1; min-width:0; border-radius: var(--radius) 0 0 var(--radius); }
+  .panneau-analyse{
+    width:0; overflow:hidden; background:var(--blanc); border-radius:0 var(--radius) var(--radius) 0;
+    box-shadow: var(--ombre); transition: width .25s ease; flex-shrink:0;
+  }
+  .panneau-analyse.ouvert{ width:320px; }
+  .panneau-analyse-contenu{ width:320px; padding:1.2rem; height:62vh; min-height:420px; overflow-y:auto; }
+  .panneau-analyse-section{ padding-bottom:1.1rem; margin-bottom:1.1rem; border-bottom:1px solid var(--sable-fonce); }
+  .panneau-analyse-section:last-child{ border-bottom:none; margin-bottom:0; }
+  .panneau-analyse-section h3{ margin:0 0 .7rem; font-size:.95rem; color:var(--bleu-nuit); }
+  .panneau-analyse-section .champ{ margin-bottom:.7rem; }
+  .panneau-analyse-section .champ label{ font-size:.8rem; }
+  .panneau-analyse-section input, .panneau-analyse-section select{ width:100%; }
+  #recherche-nicad-message, #form-modifier-message{ font-size:.82rem; margin-top:.5rem; }
+  .message-erreur{ color:var(--danger); }
+  .message-succes{ color:var(--vert-baobab); }
+  .legende-superficie{ display:flex; flex-direction:column; gap:.4rem; margin-top:.7rem; font-size:.82rem; }
+  #btn-toggle-panneau{
+    position:absolute; top:1rem; right:1rem; z-index:50;
+    background:var(--bleu-nuit); color:var(--blanc); border:none; border-radius:999px;
+    padding:.6rem 1.1rem; font-weight:600; font-size:.85rem; cursor:pointer; box-shadow:var(--ombre);
+  }
+  .carte-avec-panneau.panneau-actif #btn-toggle-panneau{ right:336px; }
+  @media (max-width: 760px){
+    .panneau-analyse.ouvert{ width:100%; position:absolute; inset:0; z-index:60; border-radius:var(--radius); }
+    .panneau-analyse-contenu{ width:100%; }
+    .carte-avec-panneau.panneau-actif #btn-toggle-panneau{ right:1rem; }
+  }
 </style>
 {% endblock %}
 
@@ -39,8 +69,13 @@
       <h1>Carte interactive des parcelles</h1>
     </div>
     <p>
-      Localisez les parcelles enregistrées dans la région de Thiès. Cliquez sur un point
+      Localisez les parcelles enregistrées dans la région de Thiès. Cliquez sur une parcelle
       pour consulter son statut ou télécharger son extrait de plan.
+    </p>
+    <p style="font-size:.85rem; color:#6b7280; margin-top:-.6rem;">
+      Les parcelles importées depuis un relevé réel (zone de Nguinth) sont affichées avec leur
+      contour exact ; les autres (données fictives de démonstration) sont représentées par un
+      contour indicatif en pointillés, proportionné à leur superficie réelle mais non relevé sur le terrain.
     </p>
 
     <form id="filtres-carte" class="form-inline" style="margin:1.3rem 0;">
@@ -81,12 +116,76 @@
     </div>
 
     <p id="carte-compteur">Chargement des parcelles…</p>
-    <div id="carte-interactive" aria-label="Carte des parcelles cadastrales"></div>
+    <div class="carte-avec-panneau" id="carte-avec-panneau">
+      <div id="carte-interactive" aria-label="Carte des parcelles cadastrales"></div>
+      <aside class="panneau-analyse" id="panneau-analyse">
+        <div class="panneau-analyse-contenu">
+          <div class="panneau-analyse-section">
+            <h3>🔍 Rechercher par NICAD</h3>
+            <div class="champ">
+              <input type="text" id="recherche-nicad" placeholder="Ex. 0723011103100543">
+            </div>
+            <button type="button" id="btn-recherche-nicad" class="btn btn-contour-sombre" style="width:100%;">Rechercher</button>
+            <p id="recherche-nicad-message"></p>
+          </div>
+
+          <div class="panneau-analyse-section">
+            <h3>📊 Catégoriser par superficie</h3>
+            <label style="display:flex; align-items:center; gap:.5rem; font-size:.85rem; cursor:pointer;">
+              <input type="checkbox" id="toggle-categorie-superficie" style="width:auto;">
+              Colorer les parcelles par taille
+            </label>
+            <div class="legende-superficie" id="legende-superficie" style="display:none;">
+              <span class="legende-item"><span class="legende-puce" style="background:#7FB3D5;"></span> Petite (≤ 200 m²)</span>
+              <span class="legende-item"><span class="legende-puce" style="background:#F5B041;"></span> Moyenne (200 – 500 m²)</span>
+              <span class="legende-item"><span class="legende-puce" style="background:#C0392B;"></span> Grande (&gt; 500 m²)</span>
+            </div>
+          </div>
+
+          <div class="panneau-analyse-section" id="section-parcelle-selectionnee" style="display:none;">
+            <h3>✏️ Modifier la parcelle</h3>
+            <p class="mono" id="parcelle-selectionnee-ref" style="font-size:.9rem; font-weight:700; color:var(--bleu-nuit);"></p>
+            <form id="form-modifier-parcelle">
+              <div class="champ">
+                <label for="mod-quartier">Quartier</label>
+                <input type="text" name="quartier" id="mod-quartier">
+              </div>
+              <div class="champ">
+                <label for="mod-usage">Usage</label>
+                <select name="usage" id="mod-usage">
+                  {% for valeur, libelle in usage_choices %}
+                    <option value="{{ valeur }}">{{ libelle }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="champ">
+                <label for="mod-statut">Statut</label>
+                <select name="statut" id="mod-statut">
+                  {% for valeur, libelle in statut_choices %}
+                    <option value="{{ valeur }}">{{ libelle }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="champ">
+                <label for="mod-superficie">Superficie (m²)</label>
+                <input type="number" step="0.01" name="superficie_m2" id="mod-superficie">
+              </div>
+              <div class="champ">
+                <label for="mod-valeur">Valeur vénale (FCFA)</label>
+                <input type="number" step="0.01" name="valeur_venale_fcfa" id="mod-valeur">
+              </div>
+              <button type="submit" class="btn btn-primaire" style="width:100%;">Enregistrer</button>
+              <p id="form-modifier-message"></p>
+            </form>
+          </div>
+        </div>
+      </aside>
+      <button type="button" id="btn-toggle-panneau">📐 Analyse spatiale</button>
+    </div>
   </div>
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <script>
 (function () {
   var COULEURS_STATUT = {
@@ -98,13 +197,33 @@
 
   var carte = L.map('carte-interactive').setView([14.75, -16.87], 10);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributeurs'
+  // On utilise les tuiles Esri (World Street Map) plutôt que le serveur de
+  // tuiles officiel d'OpenStreetMap ou les tuiles CARTO : le premier réserve
+  // ses serveurs bénévoles à un usage très léger et bloque rapidement les
+  // applications en développement/démonstration (voir
+  // https://operations.osmfoundation.org/policies/tiles/) ; les secondes
+  // exigent désormais une clé API. Les tuiles Esri utilisées ici restent
+  // disponibles sans inscription pour un usage léger. Pour un usage en
+  // production à plus grande échelle, prévoir un fournisseur avec clé API
+  // dédiée (MapTiler, Stadia Maps, Mapbox…).
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Fond de carte &copy; <a href="https://www.esri.com">Esri</a> — Esri, HERE, Garmin, FAO, NOAA, USGS'
   }).addTo(carte);
 
-  var groupeMarqueurs = L.markerClusterGroup({ maxClusterRadius: 45 });
-  carte.addLayer(groupeMarqueurs);
+  // Un seul groupe : chaque parcelle est toujours affichée sous forme de
+  // polygone (jamais un simple point), qu'il s'agisse du contour réel relevé
+  // (import géométrique) ou, à défaut, d'un contour indicatif calculé côté
+  // serveur à partir de la superficie réelle (voir _polygones_grille_commune
+  // dans core/views.py) — la carte garantit qu'aucune parcelle géolocalisée
+  // n'est jamais réduite à un point.
+  var groupePolygones = L.featureGroup();
+  carte.addLayer(groupePolygones);
+
+  // Registre pk -> couche Leaflet, utilisé par la recherche NICAD et la
+  // sélection au clic pour retrouver/mettre en avant une parcelle précise.
+  var couchesParPk = {};
+  var modeCouleur = 'statut'; // 'statut' | 'superficie'
 
   var compteurEl = document.getElementById('carte-compteur');
   var formulaire = document.getElementById('filtres-carte');
@@ -113,45 +232,97 @@
     return Number(n).toLocaleString('fr-FR');
   }
 
-  function creerMarqueur(p) {
-    var couleur = COULEURS_STATUT[p.statut] || "#8a8f9a";
-    var marqueur = L.circleMarker([p.lat, p.lng], {
-      radius: 7,
-      color: '#ffffff',
-      weight: 1.5,
-      fillColor: couleur,
-      fillOpacity: 0.9
-    });
+  // Seuils de catégorisation par superficie — indicatifs, adaptés à un
+  // contexte semi-urbain sénégalais. La légende du volet reprend ces mêmes
+  // bornes en toutes lettres.
+  function couleurParSuperficie(superficieM2) {
+    if (superficieM2 <= 200) return '#7FB3D5';
+    if (superficieM2 <= 500) return '#F5B041';
+    return '#C0392B';
+  }
 
-    var popup =
+  function contenuPopup(p) {
+    var mentionIndicatif = p.est_indicatif
+      ? '<p style="font-size:.78rem; color:#8a8f9a; margin-top:.4rem;">📐 Contour indicatif (pas une géométrie relevée sur le terrain).</p>'
+      : '';
+    return (
       '<div class="popup-parcelle">' +
         '<h4>' + p.reference + '</h4>' +
         '<p><strong>' + p.commune + '</strong> — ' + p.quartier + '</p>' +
         '<p>Usage : ' + p.usage_libelle + '</p>' +
         '<p>Statut : ' + p.statut_libelle + '</p>' +
         '<p>Superficie : ' + formatterNombre(p.superficie_m2) + ' m²</p>' +
+        mentionIndicatif +
         '<div class="popup-actions">' +
           '<a href="' + p.url_consultation + '" class="btn btn-secondaire" style="color:var(--bleu-nuit); border-color:var(--bleu-nuit);">Consulter</a>' +
-          '<a href="' + p.url_plan + '" class="btn btn-primaire">Extrait de plan</a>' +
         '</div>' +
-      '</div>';
+      '</div>'
+    );
+  }
 
-    marqueur.bindPopup(popup);
-    return marqueur;
+  // Contour réel connu (import géométrique) : polygone plein, à la manière
+  // d'un plan cadastral. Contour indicatif (superficie réelle mais pas de
+  // géométrie relevée) : même polygone, mais bordure en pointillés pour
+  // rester honnête sur ce qu'il représente — jamais un simple point.
+  function creerPolygoneParcelle(p) {
+    var couleur = modeCouleur === 'superficie'
+      ? couleurParSuperficie(p.superficie_m2)
+      : (COULEURS_STATUT[p.statut] || "#8a8f9a");
+    var polygone = L.polygon(p.polygone, {
+      color: '#232333',
+      weight: 1.2,
+      fillColor: couleur,
+      fillOpacity: p.est_indicatif ? 0.55 : 0.75,
+      dashArray: p.est_indicatif ? '4,3' : null
+    });
+    polygone.donneesParcelle = p;
+    polygone.bindPopup(contenuPopup(p));
+    // En plus de la popup (consultation), un clic sélectionne la parcelle
+    // dans le volet "Analyse spatiale" pour une modification rapide.
+    polygone.on('click', function () { selectionnerParcelle(p); });
+    if (p.pk) couchesParPk[p.pk] = polygone;
+    return polygone;
+  }
+
+  // Recolore toutes les couches déjà chargées selon le mode courant, sans
+  // recharger les données — utilisé par le bouton de catégorisation.
+  function appliquerColorationCourante() {
+    groupePolygones.eachLayer(function (couche) {
+      var p = couche.donneesParcelle;
+      if (!p) return;
+      var couleur = modeCouleur === 'superficie'
+        ? couleurParSuperficie(p.superficie_m2)
+        : (COULEURS_STATUT[p.statut] || "#8a8f9a");
+      couche.setStyle({ fillColor: couleur });
+    });
   }
 
   function chargerParcelles() {
     var params = new URLSearchParams(new FormData(formulaire));
+    var premierChargement = !carte._aDejaAjuste;
     compteurEl.textContent = "Chargement des parcelles…";
 
     fetch("{% url 'core:carte_parcelles_donnees' %}?" + params.toString())
       .then(function (reponse) { return reponse.json(); })
       .then(function (donnees) {
-        groupeMarqueurs.clearLayers();
+        groupePolygones.clearLayers();
+        couchesParPk = {};
         donnees.parcelles.forEach(function (p) {
-          groupeMarqueurs.addLayer(creerMarqueur(p));
+          if (p.polygone && p.polygone.length >= 3) {
+            groupePolygones.addLayer(creerPolygoneParcelle(p));
+          }
         });
         compteurEl.textContent = formatterNombre(donnees.total) + " parcelle(s) géolocalisée(s) affichée(s).";
+
+        // Cale la vue sur les parcelles chargées (surtout utile au premier
+        // affichage, avant tout filtrage, pour être sûr qu'elles soient visibles
+        // même si elles sont loin du centre par défaut de la carte).
+        if (groupePolygones.getLayers().length) {
+          carte.fitBounds(groupePolygones.getBounds(), { padding: [30, 30], maxZoom: 16 });
+          carte._aDejaAjuste = true;
+        } else if (premierChargement) {
+          compteurEl.textContent = "Aucune parcelle géolocalisée à afficher.";
+        }
       })
       .catch(function () {
         compteurEl.textContent = "Impossible de charger les parcelles pour le moment.";
@@ -160,6 +331,116 @@
 
   formulaire.addEventListener('change', chargerParcelles);
   chargerParcelles();
+
+  // ================= Volet "Analyse spatiale" =================
+  var conteneurCarte = document.getElementById('carte-avec-panneau');
+  var panneau = document.getElementById('panneau-analyse');
+  document.getElementById('btn-toggle-panneau').addEventListener('click', function () {
+    panneau.classList.toggle('ouvert');
+    conteneurCarte.classList.toggle('panneau-actif');
+    setTimeout(function () { carte.invalidateSize(); }, 260);
+  });
+
+  // ---- 1. Recherche par NICAD ----
+  var champRecherche = document.getElementById('recherche-nicad');
+  var messageRecherche = document.getElementById('recherche-nicad-message');
+
+  function lancerRechercheNicad() {
+    var reference = champRecherche.value.trim();
+    messageRecherche.className = '';
+    messageRecherche.textContent = '';
+    if (!reference) return;
+
+    fetch("{% url 'cadastre:rechercher_parcelle_nicad' %}?reference=" + encodeURIComponent(reference))
+      .then(function (r) { return r.json(); })
+      .then(function (resultat) {
+        if (!resultat.trouvee) {
+          messageRecherche.className = 'message-erreur';
+          messageRecherche.textContent = resultat.erreur || "Parcelle introuvable.";
+          return;
+        }
+        messageRecherche.className = 'message-succes';
+        messageRecherche.textContent = "Parcelle trouvée : " + resultat.reference;
+        carte.setView([resultat.lat, resultat.lng], 17);
+        var couche = couchesParPk[resultat.pk];
+        if (couche) {
+          couche.openPopup();
+        }
+        selectionnerParcelle(resultat);
+      })
+      .catch(function () {
+        messageRecherche.className = 'message-erreur';
+        messageRecherche.textContent = "Recherche impossible pour le moment.";
+      });
+  }
+  document.getElementById('btn-recherche-nicad').addEventListener('click', lancerRechercheNicad);
+  champRecherche.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); lancerRechercheNicad(); }
+  });
+
+  // ---- 2. Catégorisation par superficie ----
+  var toggleSuperficie = document.getElementById('toggle-categorie-superficie');
+  var legendeSuperficie = document.getElementById('legende-superficie');
+  var legendeStatut = document.querySelector('.legende-carte');
+  toggleSuperficie.addEventListener('change', function () {
+    modeCouleur = toggleSuperficie.checked ? 'superficie' : 'statut';
+    legendeSuperficie.style.display = toggleSuperficie.checked ? 'flex' : 'none';
+    if (legendeStatut) legendeStatut.style.display = toggleSuperficie.checked ? 'none' : 'flex';
+    appliquerColorationCourante();
+  });
+
+  // ---- 3. Sélection + formulaire de mise à jour ----
+  var sectionSelection = document.getElementById('section-parcelle-selectionnee');
+  var refSelection = document.getElementById('parcelle-selectionnee-ref');
+  var formModifier = document.getElementById('form-modifier-parcelle');
+  var messageModifier = document.getElementById('form-modifier-message');
+  var pkSelectionnee = null;
+
+  function selectionnerParcelle(p) {
+    pkSelectionnee = p.pk;
+    refSelection.textContent = p.reference;
+    document.getElementById('mod-quartier').value = p.quartier || '';
+    document.getElementById('mod-usage').value = p.usage;
+    document.getElementById('mod-statut').value = p.statut;
+    document.getElementById('mod-superficie').value = p.superficie_m2;
+    document.getElementById('mod-valeur').value = p.valeur_venale_fcfa;
+    messageModifier.textContent = '';
+    messageModifier.className = '';
+    sectionSelection.style.display = 'block';
+    if (!panneau.classList.contains('ouvert')) {
+      panneau.classList.add('ouvert');
+      conteneurCarte.classList.add('panneau-actif');
+      setTimeout(function () { carte.invalidateSize(); }, 260);
+    }
+  }
+
+  formModifier.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!pkSelectionnee) return;
+    var donnees = new FormData(formModifier);
+    var url = "{% url 'cadastre:mettre_a_jour_parcelle_carte' 0 %}".replace('0', pkSelectionnee);
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': "{{ csrf_token }}" },
+      body: donnees
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resultat) {
+        if (resultat.succes) {
+          messageModifier.className = 'message-succes';
+          messageModifier.textContent = "✅ " + resultat.message;
+          chargerParcelles();
+        } else {
+          messageModifier.className = 'message-erreur';
+          messageModifier.textContent = "Erreur : vérifiez les champs saisis.";
+        }
+      })
+      .catch(function () {
+        messageModifier.className = 'message-erreur';
+        messageModifier.textContent = "Impossible d'enregistrer pour le moment.";
+      });
+  });
 })();
 </script>
 {% endblock %}

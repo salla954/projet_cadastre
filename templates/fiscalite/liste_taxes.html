@@ -6,7 +6,11 @@
   <div class="conteneur">
     <div class="section-titre">
       <h1>Taxes foncières</h1>
-      <a href="{% url 'dashboard:accueil' %}" class="voir-tout">← Tableau de bord</a>
+      <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}export=csv" class="btn btn-contour-sombre">⬇️ Exporter CSV</a>
+        <a href="{% url 'fiscalite:emettre_taxe_recherche' %}" class="btn btn-contour-sombre">➕ Émettre un avis</a>
+        <a href="{% url 'fiscalite:enregistrer_paiement_recherche' %}" class="btn btn-primaire">💰 Enregistrer un paiement</a>
+      </div>
     </div>
 
     <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
@@ -34,7 +38,7 @@
     <div class="table-conteneur">
       <table>
         <thead>
-          <tr><th>Parcelle</th><th>Année</th><th>Montant dû</th><th>Payé</th><th>Solde</th><th>Statut</th></tr>
+          <tr><th>Parcelle</th><th>Année</th><th>Montant dû</th><th>Payé</th><th>Solde</th><th>Statut</th><th></th></tr>
         </thead>
         <tbody>
           {% for t in page_obj %}
@@ -50,9 +54,14 @@
               {% elif t.statut == "EN_RETARD" %}<span class="badge badge-rouge">En retard</span>
               {% else %}<span class="badge badge-gris">Émise</span>{% endif %}
             </td>
+            <td>
+              {% if t.solde_restant > 0 %}
+                <a href="{% url 'fiscalite:enregistrer_paiement' t.pk %}" class="btn btn-primaire" style="padding:.4rem .8rem; font-size:.82rem;">💰 Payer</a>
+              {% endif %}
+            </td>
           </tr>
           {% empty %}
-          <tr><td colspan="6">
+          <tr><td colspan="7">
             <div class="etat-vide">
               <div class="etat-vide-icone">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>

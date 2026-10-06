@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titre %}Dossier déposé — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:640px; text-align:center;">
+    <div class="alerte alerte-success" style="display:inline-block; padding:.4rem 1rem; margin-bottom:1rem;">
+      Dossier déposé avec succès
+    </div>
+    <h1>Votre dossier a bien été enregistré</h1>
+    <p style="color:#4b5262; font-size:1.05rem;">
+      Conservez précieusement la référence ci-dessous : elle est indispensable pour suivre l'avancement de
+      votre dossier. Elle ne sera pas renvoyée par un autre moyen.
+    </p>
+
+    <div class="carte" style="background:var(--bleu-nuit); color:var(--blanc); border-radius:var(--radius); padding:1.6rem; margin:1.5rem 0;">
+      <span style="font-family:var(--font-mono); font-size:.8rem; color:rgba(255,255,255,.7); text-transform:uppercase; letter-spacing:.08em;">Référence de suivi</span>
+      <div style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; margin-top:.4rem; letter-spacing:.05em;">
+        {{ dossier.reference_suivi }}
+      </div>
+    </div>
+
+    <div class="hero-actions" style="justify-content:center;">
+      <a href="{% url 'demarches:recu_dossier_pdf' dossier.reference_suivi %}" class="btn btn-secondaire">⬇️ Télécharger le reçu (PDF)</a>
+      <a href="{% url 'demarches:suivre' %}" class="btn btn-primaire">Suivre ce dossier</a>
+      <a href="{% url 'core:accueil' %}" class="btn btn-contour-sombre">Retour à l'accueil</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

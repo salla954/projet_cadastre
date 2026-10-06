@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Émettre un avis de taxe — Back-office{% endblock %}
+{% block contenu %}
+<section class="section">
+  <div class="conteneur" style="max-width:600px;">
+    <div class="section-titre">
+      <h1>➕ Émettre un avis de taxe</h1>
+      <a href="{% url 'fiscalite:liste_taxes' %}" class="voir-tout">← Taxes foncières</a>
+    </div>
+    <p style="color:#4b5262;">Recherchez la parcelle concernée par sa référence.</p>
+
+    <form method="get" class="form-inline" style="margin-bottom:1.5rem;">
+      <div class="champ" style="flex-grow:1;">
+        <input type="text" name="reference" value="{{ reference }}" placeholder="Ex. 0723011103100543" autofocus>
+      </div>
+      <button type="submit" class="btn btn-primaire">Rechercher</button>
+    </form>
+
+    {% if erreur %}
+      <div class="alerte alerte-error">{{ erreur }}</div>
+    {% endif %}
+
+    {% if parcelle %}
+      <div class="carte" style="background:var(--blanc); border-radius:var(--radius); box-shadow:var(--ombre); padding:1.5rem;">
+        <h3 style="margin-top:0;" class="mono">{{ parcelle.reference }}</h3>
+        <p style="color:#4b5262; margin-bottom:1rem;">
+          {{ parcelle.commune }} — {{ parcelle.get_usage_display }} — {{ parcelle.valeur_venale_fcfa|intcomma }} FCFA
+        </p>
+        <a href="{% url 'fiscalite:emettre_taxe' parcelle.pk %}" class="btn btn-primaire">Continuer →</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

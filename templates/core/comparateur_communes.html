@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block titre %}Comparateur de communes — Cadastre &amp; Fiscalité foncière Thiès{% endblock %}
+{% block meta_description %}Comparez les communes de la région de Thiès : nombre de parcelles, superficie moyenne, usage dominant et taux de recouvrement fiscal.{% endblock %}
+{% block contenu %}
+
+<section class="hero motif-cadastral" style="--hero-img: none;">
+  <div class="conteneur">
+    <span class="hero-eyebrow">⚖️ Comparateur</span>
+    <h1>Comparateur de communes</h1>
+    <p class="lead">
+      Comparez les 10 communes de la région de Thiès entre elles : nombre de parcelles, superficie
+      moyenne, usage dominant et taux de recouvrement fiscal.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="table-conteneur">
+      <table>
+        <thead>
+          <tr>
+            <th>Commune</th>
+            <th>Nb. parcelles</th>
+            <th style="min-width:160px;">Part du total</th>
+            <th>Superficie moyenne</th>
+            <th>Usage dominant</th>
+            <th>Taux de recouvrement</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+          <tr>
+            <td><strong>{{ ligne.commune }}</strong></td>
+            <td>{{ ligne.nb_parcelles }}</td>
+            <td>
+              <div class="mini-barre-piste">
+                <div class="mini-barre-remplissage" style="width:{{ ligne.largeur }}%;"></div>
+              </div>
+            </td>
+            <td>{{ ligne.superficie_moyenne|floatformat:0|intcomma }} m²</td>
+            <td>{{ ligne.usage_dominant }}</td>
+            <td>
+              {% if ligne.taux_recouvrement >= 70 %}
+                <span class="badge badge-vert">{{ ligne.taux_recouvrement }} %</span>
+              {% elif ligne.taux_recouvrement >= 40 %}
+                <span class="badge badge-ocre">{{ ligne.taux_recouvrement }} %</span>
+              {% else %}
+                <span class="badge badge-rouge">{{ ligne.taux_recouvrement }} %</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+            <tr><td colspan="6">Aucune commune à afficher pour le moment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:.82rem; color:#8a8f9a; margin-top:1.2rem;">
+      Le taux de recouvrement correspond au montant de taxe foncière déjà payé rapporté au montant
+      total émis, toutes années confondues. Données de démonstration à but pédagogique.
+    </p>
+
+    <div class="cta-bandeau" style="margin-top:1.5rem;">
+      <div>
+        <h2>Envie d'aller plus loin ?</h2>
+        <p>Consultez les chiffres détaillés de l'ensemble de la plateforme.</p>
+      </div>
+      <a href="{% url 'core:transparence' %}" class="btn btn-primaire">Voir les chiffres publics</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

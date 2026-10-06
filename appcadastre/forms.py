@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from cadastre.models import Commune
+
 from .models import Profil
 
 
@@ -10,6 +12,10 @@ class CreationUtilisateurForm(UserCreationForm):
 
     email = forms.EmailField(required=False, label="Adresse e-mail")
     role = forms.ChoiceField(choices=Profil.ROLE_CHOICES, initial=Profil.AGENT, label="Rôle")
+    specialite = forms.ChoiceField(
+        choices=Profil.SPECIALITE_CHOICES, initial=Profil.GENERALISTE,
+        label="Spécialité / mission", required=False,
+    )
     service = forms.CharField(required=False, label="Service", max_length=100)
     telephone = forms.CharField(required=False, label="Téléphone", max_length=20)
 
@@ -27,6 +33,7 @@ class CreationUtilisateurForm(UserCreationForm):
         role = self.cleaned_data["role"]
         profil, _ = Profil.objects.get_or_create(utilisateur=utilisateur)
         profil.role = role
+        profil.specialite = self.cleaned_data.get("specialite") or Profil.GENERALISTE
         profil.service = self.cleaned_data.get("service", "")
         profil.telephone = self.cleaned_data.get("telephone", "")
         profil.utilisateur.is_staff = role in (Profil.ADMINISTRATEUR,)
@@ -37,4 +44,12 @@ class CreationUtilisateurForm(UserCreationForm):
 
 class ModifierRoleForm(forms.Form):
     role = forms.ChoiceField(choices=Profil.ROLE_CHOICES, label="Rôle")
+    specialite = forms.ChoiceField(
+        choices=Profil.SPECIALITE_CHOICES, label="Spécialité / mission", required=False,
+    )
+    communes_attribuees = forms.ModelMultipleChoiceField(
+        queryset=Commune.objects.all(), label="Communes attribuées",
+        required=False, widget=forms.SelectMultiple(attrs={"size": 6}),
+        help_text="Laisser vide pour ne restreindre à aucune commune en particulier.",
+    )
     actif = forms.BooleanField(required=False, label="Compte actif")
